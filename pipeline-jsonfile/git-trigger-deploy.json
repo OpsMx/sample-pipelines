@@ -1,0 +1,62 @@
+{
+  "expectedArtifacts": [
+    {
+      "defaultArtifact": {
+        "customKind": true,
+        "id": "a894278f-e611-4b39-8753-887b3bc5a546"
+      },
+      "displayName": "sample-app",
+      "id": "109ea40c-f3c2-4575-a833-e7b6f50be335",
+      "matchArtifact": {
+        "artifactAccount": "opsmxdemo_account",
+        "customKind": true,
+        "id": "3fdf33e5-10f1-4013-89de-6ff308b15799",
+        "name": "kubedeploys/opsmx-basedeploy.yml",
+        "type": "github/file"
+      },
+      "useDefaultArtifact": false,
+      "usePriorArtifact": false
+    }
+  ],
+  "application": "sample-app",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "git-trigger-deploy",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifactId": "109ea40c-f3c2-4575-a833-e7b6f50be335",
+      "moniker": {
+        "app": "sample-app"
+      },
+      "name": "Deploy (Manifest)",
+      "refId": "2",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [
+    {
+      "enabled": true,
+      "expectedArtifactIds": [
+        "109ea40c-f3c2-4575-a833-e7b6f50be335"
+      ],
+      "project": "OpsMx",
+      "slug": "restapp",
+      "source": "github",
+      "type": "git"
+    }
+  ]
+}

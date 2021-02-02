@@ -1,0 +1,48 @@
+{
+  "application": "sample-app",
+  "expectedArtifacts": [],
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "docker-trigger-deploy",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifact": {
+        "artifactAccount": "opsmxdemo_account",
+        "id": "a6638171-78ed-41c3-84ff-ac5d72e7ef43",
+        "name": "https://github.com/OpsMx/restapp/blob/master/deploys/simple-deploy.yml",
+        "reference": "https://github.com/OpsMx/restapp/blob/master/deploys/simple-deploy.yml",
+        "type": "github/file"
+      },
+      "moniker": {
+        "app": "sample-app"
+      },
+      "name": "Deploy (Manifest)",
+      "refId": "2",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [
+    {
+      "account": "my-docker-registry",
+      "enabled": true,
+      "organization": "opsmx11",
+      "registry": "index.docker.io",
+      "repository": "opsmx11/terraspin",
+      "type": "docker"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "application": "sample-app",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "opa-test",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "alias": "preconfiguredWebhook",
+      "name": "Policy Stage",
+      "parameterValues": {
+        "OPA_POLICYPATH": "/v1/data/opa/pipelines/datetimeslot",
+        "POLICY_PROXY": "http://oes-sapor:8085"
+      },
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "statusUrlResolution": "getMethod",
+      "type": "PolicyStage"
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "moniker": {
+        "app": "sample-app"
+      },
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "name": "nginx-deployment"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "nginx"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "nginx"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "nginx:1.14.2",
+                    "name": "nginx",
+                    "ports": [
+                      {
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+
+      "name": "Deploy (Manifest)",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": []
+}
