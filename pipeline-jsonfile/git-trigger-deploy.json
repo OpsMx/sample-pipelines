@@ -1,24 +1,7 @@
 {
-  "expectedArtifacts": [
-    {
-      "defaultArtifact": {
-        "customKind": true,
-        "id": "a894278f-e611-4b39-8753-887b3bc5a546"
-      },
-      "displayName": "sample-app",
-      "id": "109ea40c-f3c2-4575-a833-e7b6f50be335",
-      "matchArtifact": {
-        "artifactAccount": "opsmxdemo_account",
-        "customKind": true,
-        "id": "3fdf33e5-10f1-4013-89de-6ff308b15799",
-        "name": "kubedeploys/opsmx-basedeploy.yml",
-        "type": "github/file"
-      },
-      "useDefaultArtifact": false,
-      "usePriorArtifact": false
-    }
-  ],
   "application": "sample-app",
+  "description": "This sample pipeline shows the Github auto trigger and deploys manifest to kubernetes by fetching the artifact from github.",
+  "expectedArtifacts": [],
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
@@ -28,7 +11,14 @@
     {
       "account": "default",
       "cloudProvider": "kubernetes",
-      "manifestArtifactId": "109ea40c-f3c2-4575-a833-e7b6f50be335",
+      "manifestArtifact": {
+        "artifactAccount": "opsmxdemo_account",
+        "id": "06904142-4a52-48e2-80d8-faad99b8d793",
+        "name": "kubedeploys/opsmx-basedeploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/restapp/contents/kubedeploys/opsmx-basedeploy.yml",
+        "type": "github/file",
+        "version": "master"
+      },
       "moniker": {
         "app": "sample-app"
       },
@@ -40,8 +30,7 @@
       "trafficManagement": {
         "enabled": false,
         "options": {
-          "enableTraffic": false,
-          "services": []
+          "enableTraffic": false
         }
       },
       "type": "deployManifest"
@@ -50,9 +39,7 @@
   "triggers": [
     {
       "enabled": true,
-      "expectedArtifactIds": [
-        "109ea40c-f3c2-4575-a833-e7b6f50be335"
-      ],
+      "expectedArtifactIds": [],
       "project": "OpsMx",
       "slug": "restapp",
       "source": "github",

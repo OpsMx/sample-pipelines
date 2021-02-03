@@ -1,5 +1,6 @@
 {
   "application": "sample-app",
+  "description": "This sample pipeline shows the docker registry auto trigger and deploys manifest to kubernetes by fetching the artifact from github.  ",
   "expectedArtifacts": [],
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
@@ -13,9 +14,10 @@
       "manifestArtifact": {
         "artifactAccount": "opsmxdemo_account",
         "id": "a6638171-78ed-41c3-84ff-ac5d72e7ef43",
-        "name": "https://github.com/OpsMx/restapp/blob/master/deploys/simple-deploy.yml",
-        "reference": "https://github.com/OpsMx/restapp/blob/master/deploys/simple-deploy.yml",
-        "type": "github/file"
+        "name": "deploys/simple-deploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/restapp/contents/deploys/simple-deploy.yml",
+        "type": "github/file",
+        "version": "master"
       },
       "moniker": {
         "app": "sample-app"
@@ -28,8 +30,7 @@
       "trafficManagement": {
         "enabled": false,
         "options": {
-          "enableTraffic": false,
-          "services": []
+          "enableTraffic": false
         }
       },
       "type": "deployManifest"

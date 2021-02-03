@@ -1,5 +1,6 @@
 {
   "application": "sample-app",
+  "description": "This sample pipeline shows the opa policy stage use case"
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,

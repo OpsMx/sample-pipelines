@@ -1,0 +1,89 @@
+{
+  "application": "sample-app",
+  "description": "This sample pipeline shows the Kubernetes deployment through Helm chart. Bake stage fetch the helm chart from Github repo and deploy stage make uses of produced base64 artifact from bake stage and deploys it.",
+  "expectedArtifacts": [],
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "helmchart-deploy",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "expectedArtifacts": [
+        {
+          "defaultArtifact": {
+            "customKind": true,
+            "id": "aa792ec7-1c58-478e-adce-dc9a88e9a68a"
+          },
+          "displayName": "sample-app-artifact",
+          "id": "26231da3-4ad4-4788-b240-8cc0f32df0bb",
+          "matchArtifact": {
+            "artifactAccount": "embedded-artifact",
+            "customKind": false,
+            "id": "6ed9cece-feaf-4614-889f-f8c5c90abc2c",
+            "name": "Sample-app",
+            "type": "embedded/base64"
+          },
+          "useDefaultArtifact": false,
+          "usePriorArtifact": false
+        }
+      ],
+      "inputArtifacts": [
+        {
+          "account": "saga-github-ac",
+          "artifact": {
+            "artifactAccount": "saga-github-ac",
+            "id": "27c16dd7-f723-4653-afe1-08e103b612b7",
+            "name": "helmchart/hello-world-0.1.0.tgz?ref=gh-pages",
+            "reference": "https://api.github.com/repos/sagayd/helm-demo/contents/helmchart/hello-world-0.1.0.tgz?ref=gh-pages",
+            "type": "github/file",
+            "version": "gh-pages"
+          }
+        },
+        {
+          "account": "saga-github-ac",
+          "artifact": {
+            "artifactAccount": "saga-github-ac",
+            "id": "5c2c2d47-c08e-4757-8b5d-0e9e63c525d8",
+            "name": "helmchart/hello-world/values.yaml.dev",
+            "reference": "https://api.github.com/repos/sagayd/helm-demo/contents/helmchart/hello-world/values.yaml.dev",
+            "type": "github/file",
+            "version": "gh-pages"
+          }
+        }
+      ],
+      "name": "Bake (Manifest)",
+      "namespace": "default",
+      "outputName": "Sample-app",
+      "overrides": {},
+      "rawOverrides": false,
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "templateRenderer": "HELM2",
+      "type": "bakeManifest"
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifactId": "26231da3-4ad4-4788-b240-8cc0f32df0bb",
+      "moniker": {
+        "app": "sample-app"
+      },
+      "name": "Deploy (Manifest)",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": []
+}
