@@ -5,7 +5,7 @@ These pipelines can be set as default sample pipelines when spinnaker is install
 
 ## Script Usage
 1. Pre-requisite: spinCLI has to installed and configured. Link to set it up -- https://spinnaker.io/setup/spin/
-2. In pipeline Json files, the trigger section has github account, So these github account can be changed to yiu account.Similary for Docker registry.
+2. In pipeline Json files, the trigger section has github account, So these github account can be changed to your account.Similary for Docker registry.
   
    ```
    Sample Code Block for Github trigger:

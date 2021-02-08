@@ -1,0 +1,115 @@
+{
+  "application": "sampleapp",
+  "description": "The sample pipeline describes deployment to AWS with image find the tags. The tag is parameterized and its getting deployed to EC2 instance.For reference https://github.com/OpsMx/sample-pipelines",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "aws-deploy-findimagetag",
+  "parameterConfig": [
+    {
+      "default": "",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "amitag",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "cloudProvider": "aws",
+      "cloudProviderType": "aws",
+      "name": "Find Image from Tags",
+      "packageName": "${parameters.amitag}",
+      "refId": "1",
+      "regions": [
+        "us-east-1"
+      ],
+      "requisiteStageRefIds": [],
+      "tags": {},
+      "type": "findImageFromTags"
+    },
+    {
+      "clusters": [
+        {
+          "account": "my-aws-ec2-account",
+          "application": "sampleapp",
+          "availabilityZones": {
+            "us-east-1": [
+              "us-east-1a",
+              "us-east-1b",
+              "us-east-1c",
+              "us-east-1d",
+              "us-east-1e",
+              "us-east-1f"
+            ]
+          },
+          "capacity": {
+            "desired": 1,
+            "max": 1,
+            "min": 1
+          },
+          "cloudProvider": "aws",
+          "cooldown": 10,
+          "copySourceCustomBlockDeviceMappings": false,
+          "delayBeforeDisableSec": 0,
+          "delayBeforeScaleDownSec": 0,
+          "ebsOptimized": false,
+          "enabledMetrics": [],
+          "freeFormDetails": "tag",
+          "healthCheckGracePeriod": 600,
+          "healthCheckType": "EC2",
+          "iamRole": "ec2-instance",
+          "instanceMonitoring": false,
+          "instanceType": "t2.micro",
+          "keyPair": "EC2Keys",
+          "loadBalancers": [
+            "multiclouddemo-phani-loadbal"
+          ],
+          "maxRemainingAsgs": 2,
+          "moniker": {
+            "app": "sampleapp",
+            "detail": "tag",
+            "stack": "deployAMI"
+          },
+          "provider": "aws",
+          "rollback": {
+            "onFailure": true
+          },
+          "scaleDown": false,
+          "securityGroups": [
+            "sg-0f89b9be78a1cbf4c"
+          ],
+          "spotPrice": "",
+          "stack": "deployAMI",
+          "strategy": "redblack",
+          "subnetType": "external (spinEC2vpc)",
+          "suspendedProcesses": [],
+          "tags": {
+            "Name": "SpinnakerTagTesting"
+          },
+          "targetGroups": [],
+          "targetHealthyDeployPercentage": 100,
+          "terminationPolicies": [
+            "Default"
+          ],
+          "useAmiBlockDeviceMappings": false
+        }
+      ],
+      "name": "Deploy",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "deploy"
+    }
+  ],
+  "triggers": [],
+}

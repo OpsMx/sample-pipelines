@@ -1,6 +1,6 @@
 {
-  "application": "sample-app",
-  "description": "This sample pipeline shows  kubernetes deployment by fetching the artifact from github.",
+  "application": "sampleapp",
+  "description": "This sample pipeline shows  kubernetes deployment by fetching the artifact from github.For reference https://github.com/OpsMx/sample-pipelines",
   "expectedArtifacts": [],
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
@@ -19,7 +19,7 @@
         "type": "github/file"
       },
       "moniker": {
-        "app": "sample-app"
+        "app": "sampleapp"
       },
       "name": "Deploy (Manifest)",
       "refId": "2",

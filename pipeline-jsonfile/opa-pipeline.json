@@ -1,6 +1,6 @@
 {
-  "application": "sample-app",
-  "description": "This sample pipeline shows the opa policy stage use case"
+  "application": "sampleapp",
+  "description": "This sample pipeline shows the opa policy stage use case. For reference https://github.com/OpsMx/sample-pipelines",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
@@ -23,7 +23,7 @@
       "account": "default",
       "cloudProvider": "kubernetes",
       "moniker": {
-        "app": "sample-app"
+        "app": "sampleapp"
       },
       "manifests": [
         {

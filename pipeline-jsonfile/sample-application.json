@@ -7,7 +7,7 @@
  "email": "support@opsmx.com",
  "instancePort": 80,
  "lastModifiedBy": "admin",
- "name": "sample-app",
+ "name": "sampleapp",
  "description": "Application automatically created with simple  Note that Admin user is required for this application.",
  "trafficGuards": [],
  "user": "admin"
