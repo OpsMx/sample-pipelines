@@ -15,13 +15,13 @@
             "customKind": true,
             "id": "aa792ec7-1c58-478e-adce-dc9a88e9a68a"
           },
-          "displayName": "sample-app-artifact",
+          "displayName": "helloworld-artifact",
           "id": "26231da3-4ad4-4788-b240-8cc0f32df0bb",
           "matchArtifact": {
             "artifactAccount": "embedded-artifact",
             "customKind": false,
             "id": "6ed9cece-feaf-4614-889f-f8c5c90abc2c",
-            "name": "Sample-app",
+            "name": "helloworld",
             "type": "embedded/base64"
           },
           "useDefaultArtifact": false,
@@ -30,31 +30,31 @@
       ],
       "inputArtifacts": [
         {
-          "account": "saga-github-ac",
+          "account": "opsmxdemo_account",
           "artifact": {
-            "artifactAccount": "saga-github-ac",
+            "artifactAccount": "opsmxdemo_account",
             "id": "27c16dd7-f723-4653-afe1-08e103b612b7",
-            "name": "helmchart/hello-world-0.1.0.tgz?ref=gh-pages",
-            "reference": "https://api.github.com/repos/sagayd/helm-demo/contents/helmchart/hello-world-0.1.0.tgz?ref=gh-pages",
+            "name": "helmchart/hello-world-0.1.0.tgz",
+            "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/helmchart/helloworld-0.1.0.tgz",
             "type": "github/file",
-            "version": "gh-pages"
+            "version": "main"
           }
         },
         {
-          "account": "saga-github-ac",
+          "account": "opsmxdemo_account",
           "artifact": {
-            "artifactAccount": "saga-github-ac",
+            "artifactAccount": "opsmxdemo_account",
             "id": "5c2c2d47-c08e-4757-8b5d-0e9e63c525d8",
             "name": "helmchart/hello-world/values.yaml.dev",
-            "reference": "https://api.github.com/repos/sagayd/helm-demo/contents/helmchart/hello-world/values.yaml.dev",
+            "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/helmchart/hello-world/values.yaml.dev",
             "type": "github/file",
-            "version": "gh-pages"
+            "version": "main"
           }
         }
       ],
       "name": "Bake (Manifest)",
       "namespace": "default",
-      "outputName": "Sample-app",
+      "outputName": "helloworld",
       "overrides": {},
       "rawOverrides": false,
       "refId": "1",

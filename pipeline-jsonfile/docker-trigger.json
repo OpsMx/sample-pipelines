@@ -14,10 +14,10 @@
       "manifestArtifact": {
         "artifactAccount": "opsmxdemo_account",
         "id": "a6638171-78ed-41c3-84ff-ac5d72e7ef43",
-        "name": "deploys/simple-deploy.yml",
-        "reference": "https://api.github.com/repos/opsmx/restapp/contents/deploys/simple-deploy.yml",
+        "name": "simple-deploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/kubedeploys/simple-deploy.yml",
         "type": "github/file",
-        "version": "master"
+        "version": "main"
       },
       "moniker": {
         "app": "sampleapp"

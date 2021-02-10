@@ -15,9 +15,9 @@
         "artifactAccount": "opsmxdemo_account",
         "id": "06904142-4a52-48e2-80d8-faad99b8d793",
         "name": "kubedeploys/opsmx-basedeploy.yml",
-        "reference": "https://api.github.com/repos/opsmx/restapp/contents/kubedeploys/opsmx-basedeploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/kubedeploys/opsmx-basedeploy.yml",
         "type": "github/file",
-        "version": "master"
+        "version": "main"
       },
       "moniker": {
         "app": "sampleapp"
