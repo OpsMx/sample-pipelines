@@ -60,7 +60,7 @@ These pipelines can be set as default sample pipelines when spinnaker is install
      1. spinCLI has to installed and configured. Link to set it up -- https://spinnaker.io/setup/spin/
 2. After configuring the spincli and Configuring the above instructions run the create-app.sh script.
      1.  ``` sh create-app.sh   ```  
-NOTE: If you don't want some Pipeline to be created you can comment out the line in create-app.sh before executing it. 
+NOTE: If you don't want some Pipeline to be created you can comment the particular pipeline save command in create-app.sh before executing it. 
     
     
     
