@@ -8,8 +8,10 @@ These pipelines can be set as default sample pipelines when spinnaker is install
 #### Git Artifacts and Helm chart pipelines
 1. The pipelines in which the artifacts are stored in git repository we need to configure first the Github account into spinnaker
 2. Instructions to integrate Github with spinnaker:
-      1. Enable the GitHub artifact provider inside the halyard pod :  `` hal config artifact github enable ``
-      2. Add an artifact account: `` hal config artifact github account opsmxdemo_account --token <Token>  ``
+      1. Enable the GitHub artifact provider inside the halyard pod :  
+      `` hal config artifact github enable ``
+      2. Add an artifact account: 
+      `` hal config artifact github account opsmxdemo_account --token <Token>  ``
 3. For customizing the github account with other account which is already integrated with spinnaker. Then follow below instructions. In pipeline Json files, the      trigger section has github account, So these github account can be changed to your account.
   
    ```
@@ -36,8 +38,10 @@ These pipelines can be set as default sample pipelines when spinnaker is install
 #### Docker Registry triggred  pipeline
  1. The pipeline here will get triggred through docker registry when new Image is pushed. 
  2. Configure the Docker registry with spinnaker:
-    1. Enable the provider: ``` hal config provider docker-registry enable ```
-    2. Add the account:  `` hal config provider docker-registry account add my-docker-registry --address index.docker.io  --repositories opsmx11/terraspin                   --username <username> --password <password>  ``
+    1. Enable the provider: 
+    ``` hal config provider docker-registry enable ```
+    2. Add the account: 
+    `` hal config provider docker-registry account add my-docker-registry --address index.docker.io  --repositories opsmx11/terraspin --username <username> --password <password>  ``
  3. For customizing the docker registry account with other account which is already integrated with spinnaker. Then follow below instructions. In pipeline Json       files need to change docker registry details as shown below.
  ```
     Sample Code Block for DockerHub trigger:
@@ -56,6 +60,7 @@ These pipelines can be set as default sample pipelines when spinnaker is install
      1. spinCLI has to installed and configured. Link to set it up -- https://spinnaker.io/setup/spin/
 2. After configuring the spincli and Configuring the above instructions run the create-app.sh script.
      1.  ``` sh create-app.sh   ```
+     NOTE: If you don't want some Pipeline to be created you can comment out the line in create-app.sh before executing it. 
     
     
     
