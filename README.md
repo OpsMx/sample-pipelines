@@ -9,7 +9,7 @@ These pipelines can be set as default sample pipelines when spinnaker is install
 1. The pipelines in which the artifacts are stored in git repository we need to configure first the Github account into spinnaker
 2. Instructions to integrate Github with spinnaker:
       1. Enable the GitHub artifact provider inside the halyard pod :  `` hal config artifact github enable ``
-      2. Add an artifact account: `` hal config artifact github account opsmxdemo_account --token <Token>  ``
+      2. Add an artifact account: `` hal config artifact github  add account opsmxdemo_account --token <Token>  ``
 3. For customizing the github account with other account which is already integrated with spinnaker. Then follow below instructions. In pipeline Json files, the      trigger section has github account, So these github account can be changed to your account.
   
    ```

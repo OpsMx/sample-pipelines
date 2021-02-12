@@ -1,0 +1,129 @@
+{
+  "application": "sampleapp",
+  "description": "This sample pipeline shows the blue-green deployment, Only blue deployment can be seen where the artifact is from github.For reference https://github.com/OpsMx/sample-pipelines",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "name": "blue-deploy",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "release",
+      "options": [],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "nginx-svc",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "service_name",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifact": {
+        "artifactAccount": "opsmxdemo_account",
+        "id": "0d88b04f-be27-48dc-aedd-918e90fe6c36",
+        "name": "kubedeploys/blue-deploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/kubedeploys/blue-deploy.yml",
+        "type": "github/file",
+        "version": "main"
+      },
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "labels": {
+              "release": "${parameters.release}"
+            },
+            "name": "nginx-deployment-${parameters.release}"
+          },
+          "spec": {
+            "minReadySeconds": 5,
+            "selector": {
+              "matchLabels": {
+                "app": "nginx",
+                "release": "${parameters.release}"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "nginx",
+                  "release": "${parameters.release}"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "nginx:1.7.9",
+                    "name": "nginx",
+                    "ports": [
+                      {
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "apiVersion": "v1",
+          "kind": "Service",
+          "metadata": {
+            "name": "${parameters.service_name}",
+            "namespace": "default"
+          },
+          "spec": {
+            "ports": [
+              {
+                "port": 80,
+                "protocol": "TCP",
+                "targetPort": 80
+              }
+            ],
+            "selector": {
+              "app": "nginx",
+              "release": "${parameters.release}"
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy Blue",
+      "namespaceOverride": "default",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": []
+}

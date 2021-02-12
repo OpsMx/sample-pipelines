@@ -1,0 +1,314 @@
+{
+  "application": "sampleapp",
+  "description": "This sample pipeline shows blue-green kubernetes deployment, where green deployment happens and validates traffic and decides to rolback to blue or retains green.For reference https://github.com/OpsMx/sample-pipelines",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "name": "green-deploy",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "",
+      "description": "New Version",
+      "hasOptions": false,
+      "label": "",
+      "name": "green_release",
+      "options": [],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "",
+      "description": "Existing Version",
+      "hasOptions": false,
+      "label": "",
+      "name": "blue_release",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "nginx-svc",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "service_name",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifact": {
+        "artifactAccount": "opsmxdemo_account",
+        "id": "d00b5236-dbfb-4075-a7e9-22d540d1bf57",
+        "name": "kubedeploys/green-deploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/kubedeploys/green-deploy.yml",
+        "type": "github/file",
+        "version": "main"
+      },
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "labels": {
+              "release": "${parameters.green_release}"
+            },
+            "name": "nginx-deployment-${parameters.green_release}"
+          },
+          "spec": {
+            "minReadySeconds": 5,
+            "selector": {
+              "matchLabels": {
+                "app": "nginx",
+                "release": "${parameters.green_release}"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "nginx",
+                  "release": "${parameters.green_release}"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "nginx:1.7.9",
+                    "name": "nginx",
+                    "ports": [
+                      {
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy Green",
+      "namespaceOverride": "default",
+      "refId": "1",
+      "requisiteStageRefIds": [
+        "5"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "location": "default",
+      "manifestName": "service ${parameters.service_name}",
+      "mode": "static",
+      "name": "Switch over to Green",
+      "options": {
+        "mergeStrategy": "strategic",
+        "record": false
+      },
+      "patchBody": [
+        {
+          "spec": {
+            "selector": {
+              "app": "nginx",
+              "release": "${parameters.green_release}"
+            }
+          }
+        }
+      ],
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Accept'}",
+        "type": "expression"
+      },
+      "type": "patchManifest"
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [
+        {
+          "value": "Accept"
+        },
+        {
+          "value": "Reject"
+        }
+      ],
+      "name": "Validate Traffic",
+      "notifications": [],
+      "refId": "4",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "manualJudgment"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "location": "default",
+      "manifestName": "service nginx-svc",
+      "mode": "static",
+      "name": "Split Traffic",
+      "options": {
+        "mergeStrategy": "json",
+        "record": true
+      },
+      "patchBody": [
+        {
+          "op": "remove",
+          "path": "/spec/selector/release"
+        }
+      ],
+      "refId": "5",
+      "requisiteStageRefIds": [],
+      "source": "text",
+      "type": "patchManifest"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "kinds": [
+        "deployment"
+      ],
+      "labelSelectors": {
+        "selectors": [
+          {
+            "key": "release",
+            "kind": "EQUALS",
+            "values": [
+              "${parameters.green_release}"
+            ]
+          }
+        ]
+      },
+      "location": "default",
+      "mode": "label",
+      "name": "Rollback Green Deployment",
+      "options": {
+        "cascading": true
+      },
+      "refId": "6",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Reject'}",
+        "type": "expression"
+      },
+      "type": "deleteManifest"
+    },
+    {
+      "failOnFailedExpressions": false,
+      "failPipeline": true,
+      "instructions": "${parameters.blue_release}",
+      "judgmentInputs": [],
+      "name": "Remove Blue?",
+      "notifications": [],
+      "refId": "7",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Accept'}",
+        "type": "expression"
+      },
+      "type": "manualJudgment"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "kinds": [
+        "deployment"
+      ],
+      "labelSelectors": {
+        "selectors": [
+          {
+            "key": "release",
+            "kind": "EQUALS",
+            "values": [
+              "${parameters.blue_release}"
+            ]
+          }
+        ]
+      },
+      "location": "default",
+      "mode": "label",
+      "name": "Remove Blue Deployment",
+      "options": {
+        "cascading": true
+      },
+      "refId": "8",
+      "requisiteStageRefIds": [
+        "7"
+      ],
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Accept'}",
+        "type": "expression"
+      },
+      "type": "deleteManifest"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "location": "default",
+      "manifestName": "service ${parameters.service_name}",
+      "mode": "static",
+      "name": "Switch over to Blue",
+      "options": {
+        "mergeStrategy": "strategic",
+        "record": true
+      },
+      "patchBody": [
+        {
+          "spec": {
+            "selector": {
+              "app": "nginx",
+              "release": "${parameters.blue_release}"
+            }
+          }
+        }
+      ],
+      "refId": "9",
+      "requisiteStageRefIds": [
+        "6"
+      ],
+      "source": "text",
+      "type": "patchManifest"
+    }
+  ],
+  "triggers": [],
+  "updateTs": "1613034678000"
+}
