@@ -1,0 +1,359 @@
+{
+  "application": "sampleapp",
+  "description": "This sample pipeline shows green deployment, where green deployment happens and validates Ingress based traffic and decides to rollback to blue or to retain green.For reference https://github.com/OpsMx/sample-pipelines",
+  "appConfig": {},
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "deploy-green-ingress",
+  "parameterConfig": [
+    {
+      "default": "${ trigger['parentExecution']['trigger']['parameters']['green_release'] }",
+      "description": "New Version",
+      "hasOptions": false,
+      "label": "",
+      "name": "green_release",
+      "options": [],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "${ trigger['parentExecution']['trigger']['parameters']['blue_release'] }",
+      "description": "Existing Version",
+      "hasOptions": false,
+      "label": "",
+      "name": "blue_release",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "nginx-svc",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "service_name",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifact": {
+        "artifactAccount": "opsmxdemo_account",
+        "id": "99386da2-1b6d-4d01-9843-48ceff8dcfb4",
+        "name": "kubedeploys/green-ingress-deploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/kubedeploys/green-ingress-deploy.yml",
+        "type": "github/file",
+        "version": "main"
+      },
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "labels": {
+              "release": "${parameters.green_release}"
+            },
+            "name": "nginx-deployment-${parameters.green_release}"
+          },
+          "spec": {
+            "minReadySeconds": 5,
+            "selector": {
+              "matchLabels": {
+                "app": "nginx",
+                "release": "${parameters.green_release}"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "nginx",
+                  "release": "${parameters.green_release}"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "nginx:1.7.9",
+                    "name": "nginx",
+                    "ports": [
+                      {
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "apiVersion": "v1",
+          "kind": "Service",
+          "metadata": {
+            "labels": {
+              "release": "${parameters.green_release}"
+            },
+            "name": "${parameters.service_name}-${parameters.green_release}",
+            "namespace": "default"
+          },
+          "spec": {
+            "ports": [
+              {
+                "port": 80,
+                "protocol": "TCP",
+                "targetPort": 80
+              }
+            ],
+            "selector": {
+              "app": "nginx",
+              "release": "${parameters.green_release}"
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy Green",
+      "namespaceOverride": "default",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "location": "default",
+      "manifestName": "ingress nginx-ingress-${parameters.green_release}",
+      "mode": "static",
+      "name": "Remove Canary Annotations Green Deploy",
+      "options": {
+        "mergeStrategy": "json",
+        "record": false
+      },
+      "patchBody": [
+        {
+          "op": "remove",
+          "path": "/metadata/annotations/nginx.ingress.kubernetes.io~1canary"
+        },
+        {
+          "op": "remove",
+          "path": "/metadata/annotations/nginx.ingress.kubernetes.io~1canary-weight"
+        }
+      ],
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "14",
+        "15"
+      ],
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Accept'}",
+        "type": "expression"
+      },
+      "type": "patchManifest"
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [
+        {
+          "value": "Accept"
+        },
+        {
+          "value": "Reject"
+        }
+      ],
+      "name": "Validate Traffic",
+      "notifications": [],
+      "refId": "4",
+      "requisiteStageRefIds": [
+        "10"
+      ],
+      "type": "manualJudgment"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "kinds": [
+        "deployment",
+        "ingress",
+        "service"
+      ],
+      "labelSelectors": {
+        "selectors": [
+          {
+            "key": "release",
+            "kind": "EQUALS",
+            "values": [
+              "${parameters.green_release}"
+            ]
+          }
+        ]
+      },
+      "location": "default",
+      "mode": "label",
+      "name": "Rollback Green Deployment",
+      "options": {
+        "cascading": true
+      },
+      "refId": "6",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Reject'}",
+        "type": "expression"
+      },
+      "type": "deleteManifest"
+    },
+    {
+      "failOnFailedExpressions": false,
+      "failPipeline": true,
+      "instructions": "${parameters.blue_release}",
+      "judgmentInputs": [],
+      "name": "Scale Down Blue?",
+      "notifications": [],
+      "refId": "7",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Accept'}",
+        "type": "expression"
+      },
+      "type": "manualJudgment"
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "extensions/v1beta1",
+          "kind": "Ingress",
+          "metadata": {
+            "annotations": {
+              "kubernetes.io/ingress.class": "nginx",
+              "nginx.ingress.kubernetes.io/canary": "true",
+              "nginx.ingress.kubernetes.io/canary-weight": "100"
+            },
+            "labels": {
+              "app": "nginx",
+              "release": "${parameters.green_release}"
+            },
+            "name": "nginx-ingress-${parameters.green_release}"
+          },
+          "spec": {
+            "rules": [
+              {
+                "host": "app.domain.com",
+                "http": {
+                  "paths": [
+                    {
+                      "backend": {
+                        "serviceName": "${parameters.service_name}-${parameters.green_release}",
+                        "servicePort": 80
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Split Traffic",
+      "namespaceOverride": "default",
+      "refId": "10",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "location": "default",
+      "manifestName": "deployment nginx-deployment-${parameters.blue_release}",
+      "mode": "static",
+      "name": "Scale Down Blue Deployment",
+      "options": {
+        "mergeStrategy": "strategic",
+        "record": true
+      },
+      "patchBody": [
+        {
+          "spec": {
+            "replicas": 0
+          }
+        }
+      ],
+      "refId": "14",
+      "requisiteStageRefIds": [
+        "7"
+      ],
+      "source": "text",
+      "stageEnabled": {
+        "expression": "${#judgment(\"Validate Traffic\") == 'Accept'}",
+        "type": "expression"
+      },
+      "type": "patchManifest"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "location": "default",
+      "manifestName": "ingress nginx-ingress-${parameters.blue_release}",
+      "mode": "static",
+      "name": "Delete Blue Ingress",
+      "options": {
+        "cascading": true
+      },
+      "refId": "15",
+      "requisiteStageRefIds": [
+        "7"
+      ],
+      "type": "deleteManifest"
+    }
+  ],
+  "triggers": [],
+  "updateTs": "1613465057000"
+}

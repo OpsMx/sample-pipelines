@@ -1,0 +1,350 @@
+{
+  "application": "sampleapp",
+  "description": "This pipeline shows the Kayenta canary analysis. It analysis the metrics for canary release against baseline. For details refer to https://github.com/OpsMx/sample-pipelines",
+  "expectedArtifacts": [],
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "kayenta-canary-analysis",
+  "parameterConfig": [
+    {
+      "default": "Yes",
+      "description": "",
+      "hasOptions": true,
+      "label": "",
+      "name": "skip",
+      "options": [
+        {
+          "value": "Yes"
+        }
+      ],
+      "pinned": true,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "continuePipeline": false,
+      "failPipeline": true,
+      "job": "Spin-canary-issuegen",
+      "master": "opsmx-jenkins-master",
+      "name": "Canarybuild",
+      "parameters": {},
+      "propertyFile": "file.properties",
+      "refId": "2",
+      "requisiteStageRefIds": [],
+      "type": "jenkins"
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "ReplicaSet",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/max-version-history": "1",
+              "strategy.spinnaker.io/versioned": "true"
+            },
+            "name": "issuegenvbaseline"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "kubebaseline"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "kubebaseline"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "env": [
+                      {
+                        "name": "DD_AGENT_HOST",
+                        "valueFrom": {
+                          "fieldRef": {
+                            "fieldPath": "status.hostIP"
+                          }
+                        }
+                      },
+                      {
+                        "name": "SERVICE_NAME",
+                        "value": "issuegen_v1"
+                      }
+                    ],
+                    "image": "quay.io/opsmxpublic/baseline-issuegen:issue-base-gen-537",
+                    "imagePullPolicy": "Always",
+                    "name": "issuegenvbaseline",
+                    "ports": [
+                      {
+                        "containerPort": 8088,
+                        "name": "http",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "BaselineDeploy",
+      "namespaceOverride": "default",
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "ReplicaSet",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/max-version-history": "1",
+              "strategy.spinnaker.io/versioned": "true"
+            },
+            "name": "issuegenvcanary"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "kubecanary"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "kubecanary"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "env": [
+                      {
+                        "name": "DD_AGENT_HOST",
+                        "valueFrom": {
+                          "fieldRef": {
+                            "fieldPath": "status.hostIP"
+                          }
+                        }
+                      },
+                      {
+                        "name": "SERVICE_NAME",
+                        "value": "issuegen_v2"
+                      }
+                    ],
+                    "image": "quay.io/opsmxpublic/canary-issuegen:${#stage(\"Canarybuild\")[\"context\"][\"Buildnumber\"]}",
+                    "imagePullPolicy": "Always",
+                    "name": "issuegenvcanary",
+                    "ports": [
+                      {
+                        "containerPort": 8088,
+                        "name": "http",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "CanaryDeploy",
+      "namespaceOverride": "default",
+      "refId": "4",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "analysisType": "realTime",
+      "canaryConfig": {
+        "baselineAnalysisOffsetInMins": "2",
+        "beginCanaryAnalysisAfterMins": "2",
+        "canaryAnalysisIntervalMins": "30",
+        "canaryConfigId": "3f6c074d-72bb-4d70-baea-91ac530fa370",
+        "lifetimeDuration": "PT2H30M",
+        "metricsAccountName": "my-prometheus",
+        "scopes": [
+          {
+            "controlLocation": "default",
+            "controlScope": "${#stage(\"BaselineDeploy\")[\"outputs\"][\"outputs.createdArtifacts\"][0][\"name\"]}_${#stage(\"BaselineDeploy\")[\"outputs\"][\"outputs.createdArtifacts\"][0][\"version\"]}",
+            "experimentLocation": "default",
+            "experimentScope": "${#stage(\"CanaryDeploy\")[\"outputs\"][\"outputs.createdArtifacts\"][0][\"name\"]}_${#stage(\"CanaryDeploy\")[\"outputs\"][\"outputs.createdArtifacts\"][0][\"version\"]}",
+            "extendedScopeParams": {},
+            "scopeName": "default",
+            "step": 5
+          }
+        ],
+        "scoreThresholds": {
+          "marginal": "40",
+          "pass": "80"
+        },
+        "storageAccountName": "my-minio"
+      },
+      "name": "Canary Analysis",
+      "refId": "5",
+      "requisiteStageRefIds": [
+        "3",
+        "4"
+      ],
+      "type": "kayentaCanary"
+    },
+    {
+      "failPipeline": true,
+      "instructions": "${#stage(\"Canary Analysis\")[\"context\"][\"canaryScores\"]} <60",
+      "judgmentInputs": [
+        {
+          "value": "Approve"
+        },
+        {
+          "value": "Reject"
+        }
+      ],
+      "name": "Manual Judgment",
+      "notifications": [],
+      "refId": "6",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "stageEnabled": {
+        "expression": "${#stage(\"Canary Analysis\")[\"context\"][\"canaryScores\"]} <60",
+        "type": "expression"
+      },
+      "type": "manualJudgment"
+    },
+    {
+      "account": "target-livemanifest",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "ReplicaSet",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/max-version-history": "1",
+              "strategy.spinnaker.io/versioned": "true"
+            },
+            "name": "issuegenerator"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "version": "kubecanary"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "version": "kubecanary"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "quay.io/opsmxpublic/canary-issuegen:${#stage(\"Canarybuild\")[\"context\"][\"Buildnumber\"]}",
+                    "imagePullPolicy": "Always",
+                    "name": "issuegen",
+                    "ports": [
+                      {
+                        "containerPort": 8088,
+                        "name": "http",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Promote-To-Prod",
+      "namespaceOverride": "default",
+      "refId": "7",
+      "requisiteStageRefIds": [
+        "6"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "stageEnabled": {
+        "expression": "parameters.skip==\"Yes\" or  #judgement('Manual Judgment') == 'Approve'",
+        "type": "expression"
+      },
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "name": "Check Preconditions",
+      "preconditions": [
+        {
+          "context": {
+            "expression": "${#stage(\"Canary Analysis\")[\"context\"][\"canaryScores\"]} >60"
+          },
+          "failPipeline": false,
+          "type": "expression"
+        }
+      ],
+      "refId": "8",
+      "requisiteStageRefIds": [
+        "5"
+      ],
+      "stageEnabled": {
+        "expression": "${#stage(\"Canary Analysis\")[\"context\"][\"canaryScores\"]} >60",
+        "type": "expression"
+      },
+      "type": "checkPreconditions"
+    }
+  ],
+  "triggers": []
+}

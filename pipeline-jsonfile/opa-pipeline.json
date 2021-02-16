@@ -1,30 +1,15 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the opa policy stage use case. For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the opa runtime policy use case. For reference https://github.com/OpsMx/sample-pipelines",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
-  "name": "opa-test",
+  "name": "opa-runtime-policy",
   "spelEvaluator": "v4",
   "stages": [
     {
-      "alias": "preconfiguredWebhook",
-      "name": "Policy Stage",
-      "parameterValues": {
-        "OPA_POLICYPATH": "/v1/data/opa/pipelines/datetimeslot",
-        "POLICY_PROXY": "http://oes-sapor:8085"
-      },
-      "refId": "1",
-      "requisiteStageRefIds": [],
-      "statusUrlResolution": "getMethod",
-      "type": "PolicyStage"
-    },
-    {
       "account": "default",
       "cloudProvider": "kubernetes",
-      "moniker": {
-        "app": "sampleapp"
-      },
       "manifests": [
         {
           "apiVersion": "apps/v1",
@@ -62,11 +47,13 @@
           }
         }
       ],
-
+      "moniker": {
+        "app": "sampleapp"
+      },
       "name": "Deploy (Manifest)",
       "refId": "2",
       "requisiteStageRefIds": [
-        "1"
+        "3"
       ],
       "skipExpressionEvaluation": false,
       "source": "text",
@@ -78,6 +65,14 @@
         }
       },
       "type": "deployManifest"
+    },
+    {
+      "alias": "preconfiguredJob",
+      "name": "Custom Policy Stage",
+      "parameters": {},
+      "refId": "3",
+      "requisiteStageRefIds": [],
+      "type": "custom Policy Stage"
     }
   ],
   "triggers": []

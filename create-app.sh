@@ -1,5 +1,6 @@
 spin application save -f pipeline-jsonfile/sample-application.json
 spin pi save -f pipeline-jsonfile/opa-pipeline.json
+spin pi save -f pipeline-jsonfile/opa-static.json
 spin pi save -f pipeline-jsonfile/git-trigger-deploy.json
 spin pi save -f pipeline-jsonfile/K8s-deploy-manifest.json
 spin pi save -f pipeline-jsonfile/docker-trigger.json
@@ -8,3 +9,8 @@ spin pi save -f pipeline-jsonfile/helm-chart-deploy.json
 spin pi save -f pipeline-jsonfile/aws-deploy-findtag.json
 spin pi save -f pipeline-jsonfile/blue-deploy.json
 spin pi save -f pipeline-jsonfile/green-deploy.json
+spin pi save -f pipeline-jsonfile/jirademo.json
+spin pi save -f pipeline-jsonfile/deploy-blue-ingress.json
+spin pi save -f pipeline-jsonfile/deploy-green-ingress.json
+spin pi save -f pipeline-jsonfile/blue-green-ingress.json
+spin pi save -f pipeline-jsonfile/kayenta-canary-analysis.json

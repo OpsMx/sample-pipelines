@@ -1,0 +1,155 @@
+{
+  "application": "sampleapp",
+  "description": "This sample pipeline shows  jira trigger and deploys manifest according to the jira id states. For reference https://github.com/OpsMx/sample-pipelines",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "jirademo",
+  "parameterConfig": [
+    {
+      "default": "simple-restapp-65",
+      "description": "",
+      "hasOptions": false,
+      "label": "version",
+      "name": "version",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    },
+    {
+      "default": "OP-3246",
+      "description": "",
+      "hasOptions": false,
+      "label": "jiraid",
+      "name": "jiraid",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifact": {
+        "artifactAccount": "opsmxdemo_account",
+        "id": "ce89cc55-2d4b-4c29-89f7-b4a83a76410d",
+        "name": "kubedeploys/jira-deploy.yml",
+        "reference": "https://api.github.com/repos/opsmx/sample-pipeline-manifest/contents/kubedeploys/jira-deploy.yml",
+        "type": "github/file",
+        "version": "main"
+      },
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "ReplicaSet",
+          "metadata": {
+            "name": "opsmx-testjira-production"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "opsmx-kube-deploys"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "opsmx-kube-deploys"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "docker.io/opsmx11/restapp:${parameters.version}",
+                    "imagePullPolicy": "Always",
+                    "name": "restapp",
+                    "ports": [
+                      {
+                        "containerPort": 8080,
+                        "name": "http",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "apiVersion": "v1",
+          "kind": "Service",
+          "metadata": {
+            "name": "opsmx-svc-prod"
+          },
+          "spec": {
+            "ports": [
+              {
+                "name": "canary",
+                "port": 8080,
+                "protocol": "TCP",
+                "targetPort": 8080
+              }
+            ],
+            "selector": {
+              "app": "opsmx-kube-deploys"
+            },
+            "type": "LoadBalancer"
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "prodeploy",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "alias": "preconfiguredWebhook",
+      "name": "JIRA: Wait for state",
+      "parameterValues": {
+        "cancel": "Done",
+        "issue": "${parameters.jiraid}",
+        "retry": "To Do, In Progress",
+        "success": "In Verification",
+        "terminate": "PR Raised"
+      },
+      "refId": "3",
+      "requisiteStageRefIds": [],
+      "statusUrlResolution": "getMethod",
+      "type": "waitJiraState"
+    }
+  ],
+  "triggers": [
+    {
+      "enabled": true,
+      "payloadConstraints": {},
+      "source": "jiracurltest",
+      "type": "webhook"
+    }
+  ]
+}

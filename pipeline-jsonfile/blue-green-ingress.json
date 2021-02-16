@@ -1,0 +1,129 @@
+{
+  "application": "sampleapp",
+  "description": "This sample pipeline shows blue-green deployment with Ingress based traffic handling.For reference https://github.com/OpsMx/sample-pipelines",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "deploy-blue-green-ingress",
+  "parameterConfig": [
+    {
+      "default": "v1",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "blue_release",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    },
+    {
+      "default": "v2",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "green_release",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "application": "sampleapp",
+      "failPipeline": true,
+      "name": "Blue",
+      "pipeline": "7d8a6dc5-ac92-4d41-9ea9-6f453099ec80",
+      "pipelineParameters": {},
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "type": "pipeline",
+      "waitForCompletion": true
+    },
+    {
+      "application": "sampleapp",
+      "failPipeline": true,
+      "name": "Green",
+      "pipeline": "d8d70a1d-c001-4148-b578-72c1de527dfc",
+      "pipelineParameters": {},
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "pipeline",
+      "waitForCompletion": true
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "kinds": [
+        "deployment",
+        "service"
+      ],
+      "labelSelectors": {
+        "selectors": [
+          {
+            "key": "release",
+            "kind": "EQUALS",
+            "values": [
+              "${parameters.blue_release}"
+            ]
+          }
+        ]
+      },
+      "location": "default",
+      "mode": "label",
+      "name": "Cleanup Blue",
+      "options": {
+        "cascading": true
+      },
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "type": "deleteManifest"
+    },
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "kinds": [
+        "deployment",
+        "service",
+        "ingress"
+      ],
+      "labelSelectors": {
+        "selectors": [
+          {
+            "key": "release",
+            "kind": "EQUALS",
+            "values": [
+              "${parameters.green_release}"
+            ]
+          }
+        ]
+      },
+      "location": "default",
+      "mode": "label",
+      "name": "Delete (Manifest)",
+      "options": {
+        "cascading": true
+      },
+      "refId": "4",
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "type": "deleteManifest"
+    }
+  ],
+  "triggers": []
+}
