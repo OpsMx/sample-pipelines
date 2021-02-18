@@ -66,11 +66,58 @@ These pipelines can be set as default sample pipelines when spinnaker is install
   
   
   #### Kayenta Canary analysis pipeline
-   1. This pipeline shows the 
+   Kayenta is the Automated Canary analysis tool that integrates tightly with Spinnaker and uses the performance metrics from APM tools to make Canary                judgement whether the release is fit for production or it needs to be rolled back.
+   1. Follow the below link for step by step Integration and configuration.
+      https://www.opsmx.com/blog/how-to-integrate-kayenta-with-spinnaker-for-automated-canary-analysis/
   
+ #### Jira Demo
+   1. Jira-Demo pipeline demonstrates k8's deployment based on jira-id status and trigger the pipeline too.
+   2. Steps to execute the pipeline:
+       1. Configure the Webhook in your JIRA with the source link which is in configuration of spinnaker pipeline.
+       2. Add the custom stage - JIRA:Wait for state in spinnaker orca-local file.
+       3. At pipeline runtime pass the parameters of jiraid and and image tag version.
+ 
+ #### OPA pipelines
+   1. There are two policy pipelines:
+        1. Runtime-policy: Where the deployment is not allowed for a defined period in the policy
+        2. Static-policy: where as in the pipline name has prod, then policy enforce to include Manual and Deploy stage.
+   2. So to execute these pipline need to add the custom stage of Policy in spinnaker orca-local file. 
+ 
+ #### Kustomize pipeline
+   1. Similar to Helm Chart pipeline will make use of Kustomize yaml files for deployment.(https://spinnaker.io/guides/user/kubernetes-v2/kustomize-manifests/)
+   2. Before executing the pipline we need to integrate Git-repo account in Spinnaker (https://spinnaker.io/setup/artifacts/gitrepo/)
+ ```
+    Steps:
+     1. hal config artifact gitrepo enable
+     2. hal config artifact gitrepo account add opsmx_repo --token $TOKEN
+     
+``` 
+   3. If you need to customize your diffrent account then integrate you git-repo as shown above and make necessary changes in pipeline json file
+   ```
+     "inputArtifact": {
+        "account": "ACCOUNT NAME",
+        "artifact": {
+          "artifactAccount": "ARTIFACT ACCOUNT",
+          "customKind": true,
+          "id": "72fbda2b-2a4a-43a4-92a8-d8fe1bdd3983",
+          "metadata": {
+            "subPath": "kustomize/helloworld/base/"  ---- subpath of the yaml file
+          },
+          "reference": "https://github.com/OpsMx/sample-pipeline-manifest", ---- Reference link to repo
+          "type": "git/repo",
+          "version": "BRANCH" 
+        } 
+   ```
  ### Script Usage
 1. Pre-requisite:
      1. spinCLI has to installed and configured. Link to set it up -- https://spinnaker.io/setup/spin/
-2. After configuring the spincli and Configuring the above instructions run the create-app.sh script.
-     1.  ``` sh create-app.sh   ```  
-NOTE: If you don't want some Pipeline to be created you can comment the particular pipeline save command in create-app.sh before executing it.
+2. After configuring the spincli and Configuring the above instructions.Follow below steps to create sample pipelines
+ ```
+     1. Create an empty directory
+     2. git clone <the repo>
+     3. chmod +x create*.sh
+     4. ./createapp.sh
+  ```     
+NOTE: 
+1. If you don't want some Pipelines to be created you can comment the particular pipeline save command in create-app.sh before executing it.
+2. And also before executin the pipleines please do modify the Account and Namespace  accordingly
