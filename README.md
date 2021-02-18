@@ -5,7 +5,7 @@ These pipelines can be set as default sample pipelines when spinnaker is install
 
 ## Instructions for pipeline configurations
 
-#### Git Artifacts and Helm chart pipelines
+#### Github Account Integration (Git artifact pipelines,Helm chart pipeline,blue-green deploy pipelines)
 1. The pipelines in which the artifacts are stored in git repository we need to configure first the Github account into spinnaker
 2. Instructions to integrate Github with spinnaker:
       1. Enable the GitHub artifact provider inside the halyard pod :  
@@ -55,6 +55,19 @@ These pipelines can be set as default sample pipelines when spinnaker is install
       "type": "docker"
     }]
  ```
+ #### AWS Integration 
+  1. AWS Integration is required for aws-deploy pipeline execution. 
+  2. Follow the steps given in this link---- https://www.opsmx.com/blog/deploying-to-aws-ec2-using-spinnaker/ 
+        1. Setting up IAM Roles for Spinnaker pipeline Deployment
+        2. AWS Integration via Halyard in spinnaker
+        3. To configure Subnets and create Security Groups for Firewall Control in Spinnaker.
+        4. Creating a Load Balancer in Spinnaker.
+  3. After completing the above steps,need to configure some changes in pipeline as shown below:
+  
+  
+  #### Kayenta Canary analysis pipeline
+   1. This pipeline shows the 
+  
  ### Script Usage
 1. Pre-requisite:
      1. spinCLI has to installed and configured. Link to set it up -- https://spinnaker.io/setup/spin/
