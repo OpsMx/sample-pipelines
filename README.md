@@ -64,6 +64,7 @@ These pipelines can be set as default sample pipelines when spinnaker is install
         4. Creating a Load Balancer in Spinnaker.
   3. After completing the above steps,need to configure some changes in pipeline as shown below:
       1. Change Account details,Looad Balancer,Firewall and required details in spinnaker UI
+     
       ![AWS Deploy configuration](https://github.com/Opsmx/sample-pipelines/raw/main/screenshot/aws.png?raw=true)
   
   #### Kayenta Canary analysis pipeline
@@ -74,11 +75,12 @@ These pipelines can be set as default sample pipelines when spinnaker is install
  #### Jira Demo
    1. Jira-Demo pipeline demonstrates k8's deployment based on jira-id status and trigger the pipeline too.
    2. Steps to execute the pipeline:
-       1. Configure the Webhook in your JIRA with the source link which is in configuration of spinnaker pipeline. As shown below:
+       1. Configure the Webhook in your JIRA with the source link which is in configuration of spinnaker pipeline. As shown below in Automated Trigger section
+       
        ![jira webhook configuration](https://github.com/Opsmx/sample-pipelines/raw/main/screenshot/jira.png?raw=true)
        
-       3. Add the custom stage - JIRA:Wait for state in spinnaker orca-local file.
-       4. At pipeline runtime pass the parameters of jiraid and and image tag version.
+       2. Add the custom stage - JIRA:Wait for state in spinnaker orca-local file.
+       3. At pipeline runtime pass the parameters of jiraid and and image tag version.
  
  #### OPA pipelines
    1. There are two policy pipelines:
