@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the opa static policy use case.Where the pipeline starts with "prod" It should must have Manual Judgement and Deploy stages. For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the opa static policy use case.Where the pipeline starts with prod, It should must have Manual Judgement and Deploy stages. For reference https://github.com/OpsMx/sample-pipelines",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,

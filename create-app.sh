@@ -14,3 +14,4 @@ spin pi save -f pipeline-jsonfile/deploy-blue-ingress.json
 spin pi save -f pipeline-jsonfile/deploy-green-ingress.json
 spin pi save -f pipeline-jsonfile/blue-green-ingress.json
 spin pi save -f pipeline-jsonfile/kayenta-canary-analysis.json
+spin pi save -f pipeline-jsonfile/Kustomize.json
