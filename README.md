@@ -126,3 +126,4 @@ These pipelines can be set as default sample pipelines when spinnaker is install
 NOTE: 
 1. If you don't want some Pipelines to be created you can comment the particular pipeline save command in create-app.sh before executing it.
 2. And also before executin the pipleines please do modify the Account and Namespace  accordingly
+3. ##### FOR ALL CUSTOM STAGE : Get orca-local from: https://github.com/OpsMx/custom-stages.git
