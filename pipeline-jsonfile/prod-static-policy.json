@@ -1,0 +1,71 @@
+{
+ "application": "sampleapp",
+ "description": "This sample pipeline shows the opa static policy use case.Where the pipeline starts with prod, It should must have Manual Judgement and Deploy stages. For reference https://github.com/OpsMx/sample-pipelines",
+ "id": "9944cb96-c0b7-40b2-8522-456eab4a5e9d",
+ "index": 17,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "prod-static-policy",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "comments": "",
+   "failPipeline": true,
+   "judgmentInputs": [],
+   "name": "Manual Judgment",
+   "notifications": [],
+   "refId": "4",
+   "requisiteStageRefIds": [],
+   "type": "manualJudgment"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "v1",
+     "kind": "Pod",
+     "metadata": {
+      "labels": {
+       "run": "nginx"
+      },
+      "name": "nginx"
+     },
+     "spec": {
+      "containers": [
+       {
+        "image": "nginx",
+        "name": "nginx",
+        "resources": {}
+       }
+      ],
+      "dnsPolicy": "ClusterFirst",
+      "restartPolicy": "Always"
+     },
+     "status": {}
+    }
+   ],
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Deploy (Manifest)",
+   "refId": "5",
+   "requisiteStageRefIds": [
+    "4"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false,
+     "services": []
+    }
+   },
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1615292622000"
+}

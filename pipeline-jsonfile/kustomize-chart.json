@@ -1,8 +1,8 @@
 {
  "application": "sampleapp",
  "description": "This sample pipeline shows the deployment through Kustomization chart.For reference https://github.com/OpsMx/sample-pipelines",
- "id": "93acb891-9ac6-4077-8167-5a50fcdaaba1",
- "index": 15,
+ "id": "31abfb1b-f2e8-436d-b47d-32051d816129",
+ "index": 14,
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
@@ -108,11 +108,23 @@
    },
    "refId": "4",
    "requisiteStageRefIds": [
-    "3"
+    "5"
    ],
    "type": "deleteManifest"
+  },
+  {
+   "failPipeline": true,
+   "instructions": "Clicking Continue deletes the deployment.",
+   "judgmentInputs": [],
+   "name": "WantToDelete?",
+   "notifications": [],
+   "refId": "5",
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "type": "manualJudgment"
   }
  ],
  "triggers": [],
- "updateTs": "1615280688000"
+ "updateTs": "1615291516000"
 }
