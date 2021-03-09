@@ -1,6 +1,6 @@
-spin application save -f pipeline-jsonfile/sample-application.json
-spin pi save -f pipeline-jsonfile/opa-pipeline.json
-spin pi save -f pipeline-jsonfile/opa-static.json
+spin application save -f pipeline-jsonfile/sampleapp.json
+spin pi save -f pipeline-jsonfile/opa-runtime-policy.json
+spin pi save -f pipeline-jsonfile/prod-static-policy.json
 spin pi save -f pipeline-jsonfile/git-trigger-deploy.json
 spin pi save -f pipeline-jsonfile/K8s-deploy-manifest.json
 spin pi save -f pipeline-jsonfile/docker-trigger.json
@@ -17,3 +17,4 @@ spin pi save -f pipeline-jsonfile/kayenta-canary-analysis.json
 spin pi save -f pipeline-jsonfile/Kustomize.json
 spin pi save -f pipeline-jsonfile/syncToGit.json
 spin pi save -f pipeline-jsonfile/syncToSpinnaker.json
+spin pi save -f pipeline-jsonfile/restart-halyard.json
