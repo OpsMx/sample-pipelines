@@ -1,0 +1,25 @@
+{
+ "application": "sampleapp",
+ "id": "d2bfae24-b87a-4aa9-b35c-9d78040a8e1d",
+ "index": 1,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "syncToSpinnaker",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "alias": "preconfiguredJob",
+   "name": "pipelineSyncToSpinnaker",
+   "parameters": {
+    "spinnaker_applications": "sampleapp",
+    "spinnaker_pipelines": ""
+   },
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "type": "pipelineSyncToSpinnaker"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1615284967000"
+}

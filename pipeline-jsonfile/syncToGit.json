@@ -1,0 +1,25 @@
+{
+ "application": "sampleapp",
+ "id": "7c6f98e1-1d38-418c-98d8-6a29f2c53b63",
+ "index": 0,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "syncToGit",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "alias": "preconfiguredJob",
+   "name": "pipelineSyncToGit",
+   "parameters": {
+    "spinnaker_applications": "sampleapp",
+    "spinnaker_pipelines": ""
+   },
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "type": "pipelineSyncToGit"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1615284150000"
+}

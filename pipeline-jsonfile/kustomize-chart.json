@@ -1,0 +1,118 @@
+{
+ "application": "sampleapp",
+ "description": "This sample pipeline shows the deployment through Kustomization chart.For reference https://github.com/OpsMx/sample-pipelines",
+ "id": "93acb891-9ac6-4077-8167-5a50fcdaaba1",
+ "index": 15,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "kustomize-chart",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "expectedArtifacts": [
+    {
+     "defaultArtifact": {
+      "customKind": true,
+      "id": "0fb7aefd-2cc3-4c92-af36-60521b458a81"
+     },
+     "displayName": "helloworld",
+     "id": "eef22150-5ae6-42d1-aa2d-81c894017fe9",
+     "matchArtifact": {
+      "artifactAccount": "embedded-artifact",
+      "customKind": false,
+      "id": "586396c4-fcee-4bf8-a758-6ff61c7542e3",
+      "type": "embedded/base64"
+     },
+     "useDefaultArtifact": false,
+     "usePriorArtifact": false
+    }
+   ],
+   "inputArtifact": {
+    "account": "opsmx_repo",
+    "artifact": {
+     "artifactAccount": "opsmx_repo",
+     "customKind": true,
+     "id": "72fbda2b-2a4a-43a4-92a8-d8fe1bdd3983",
+     "metadata": {
+      "subPath": "kustomize/helloworld/base/"
+     },
+     "reference": "https://github.com/OpsMx/sample-pipeline-manifest",
+     "type": "git/repo",
+     "version": "main"
+    }
+   },
+   "kustomizeFilePath": "kustomize/helloworld/base/kustomization.yaml",
+   "name": "Bake (Manifest)",
+   "overrides": {},
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "templateRenderer": "KUSTOMIZE",
+   "type": "bakeManifest"
+  },
+  {
+   "name": "Wait",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "1"
+   ],
+   "type": "wait",
+   "waitTime": 15
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifestArtifactId": "eef22150-5ae6-42d1-aa2d-81c894017fe9",
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Deploy (Manifest)",
+   "refId": "3",
+   "requisiteStageRefIds": [
+    "2"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "artifact",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false,
+     "services": []
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "account": "default",
+   "app": "sampleapp",
+   "cloudProvider": "kubernetes",
+   "kinds": [
+    "deployment"
+   ],
+   "labelSelectors": {
+    "selectors": [
+     {
+      "key": "deployment",
+      "kind": "EQUALS",
+      "values": [
+       "hello"
+      ]
+     }
+    ]
+   },
+   "location": "default",
+   "mode": "label",
+   "name": "Delete (Manifest)",
+   "options": {
+    "cascading": true
+   },
+   "refId": "4",
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "type": "deleteManifest"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1615280688000"
+}
