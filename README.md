@@ -11,7 +11,8 @@ These pipelines can be set as default sample pipelines when spinnaker is install
       1. Enable the GitHub artifact provider inside the halyard pod :  
       `` hal config artifact github enable ``
       2. Add an artifact account:  
-        `` hal config artifact github account add opsmxdemo_account --token <Token>  ``
+        `` hal config artifact github account add opsmxdemo_account   ``
+        (Note: If you use private repo then add the token flag for authentication `` --token <Token> `` )
 3. For customizing the github account with other account which is already integrated with spinnaker. Then follow below instructions. In pipeline Json files, the      trigger section has github account, So these github account can be changed to your account.
 
    ```
@@ -41,7 +42,9 @@ These pipelines can be set as default sample pipelines when spinnaker is install
     1. Enable the provider:  
       ``` hal config provider docker-registry enable ```
     2. Add the account:   
-      `` hal config provider docker-registry account add my-docker-registry --address index.docker.io  --repositories opsmx11/terraspin --username <username> --password <password>  ``
+      `` hal config provider docker-registry account add my-docker-registry --address index.docker.io  --repositories opsmx11/terraspin --username <username>  ``
+        (Note: If you use private repo then add the password flag for authentication ``  --password <password> `` )
+        
  3. For customizing the docker registry account with other account which is already integrated with spinnaker. Then follow below instructions. In pipeline Json       files need to change docker registry details as shown below.
  ```
     Sample Code Block for DockerHub trigger:
@@ -87,6 +90,10 @@ These pipelines can be set as default sample pipelines when spinnaker is install
         1. Runtime-policy: Where the deployment is not allowed for a defined period in the policy
         2. Static-policy: where as in the pipline name has prod, then policy enforce to include Manual and Deploy stage.
    2. So to execute these pipline need to add the custom stage of Policy in spinnaker orca-local file. 
+   3. For Runtime policy pipeline provide the following parameters in the Policy stage :
+        1. Policy Proxy -- http://oes-sapor.<namespace>:8085
+        2. Policy Path -- /v1/data/opa/pipelines/datetimeslot
+        
  
  #### Kustomize pipeline
    1. Similar to Helm Chart pipeline will make use of Kustomize yaml files for deployment.(https://spinnaker.io/guides/user/kubernetes-v2/kustomize-manifests/)
@@ -94,8 +101,8 @@ These pipelines can be set as default sample pipelines when spinnaker is install
  ```
     Steps:
      1. hal config artifact gitrepo enable
-     2. hal config artifact gitrepo account add opsmx_repo --token $TOKEN
-     
+     2. hal config artifact gitrepo account add opsmx_repo 
+     (Note: If you use private repo then add the token flag for authentication  --token <Token>  )
 ``` 
    3. If you need to customize your diffrent account then integrate you git-repo as shown above and make necessary changes in pipeline json file
    ```
