@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows blue-green kubernetes deployment, where green deployment happens and validates traffic and decides to rolback to blue or retains green.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows blue-green kubernetes deployment, where green deployment happens and validates traffic and decides to rolback to blue or retains green.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "name": "green-deploy",

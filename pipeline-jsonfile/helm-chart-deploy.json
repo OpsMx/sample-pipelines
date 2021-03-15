@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the Kubernetes deployment through Helm chart. Bake stage fetch the helm chart from Github repo and deploy stage make uses of produced base64 artifact from bake stage and deploys it.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the Kubernetes deployment through Helm chart. Bake stage fetch the helm chart from Github repo and deploy stage make uses of produced base64 artifact from bake stage and deploys it",
   "expectedArtifacts": [],
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",

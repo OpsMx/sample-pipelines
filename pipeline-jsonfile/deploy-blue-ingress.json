@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the Ingress based blue deployment.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the Ingress based blue deployment.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,

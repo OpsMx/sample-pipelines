@@ -1,6 +1,6 @@
 {
  "application": "sampleapp",
- "description": "This sample pipeline shows the opa runtime policy use case. For reference https://github.com/OpsMx/sample-pipelines",
+ "description": "This sample pipeline shows the opa runtime policy use case.",
  "id": "028620ae-2e79-42d2-a1c4-dd10f02ae357",
  "index": 16,
  "keepWaitingPipelines": false,

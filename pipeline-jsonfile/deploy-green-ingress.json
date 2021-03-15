@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows green deployment, where green deployment happens and validates Ingress based traffic and decides to rollback to blue or to retain green.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows green deployment, where green deployment happens and validates Ingress based traffic and decides to rollback to blue or to retain green",
   "appConfig": {},
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",

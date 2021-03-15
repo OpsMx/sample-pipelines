@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This pipeline shows the Kayenta canary analysis. It analysis the metrics for canary release against baseline. For details refer to https://github.com/OpsMx/sample-pipelines",
+  "description": "This pipeline shows the Kayenta canary analysis. It analysis the metrics for canary release against baseline.",
   "expectedArtifacts": [],
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",

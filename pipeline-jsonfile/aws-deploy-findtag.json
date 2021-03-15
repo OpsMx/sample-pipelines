@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "The sample pipeline describes deployment to AWS with image find the tags. The tag is parameterized and its getting deployed to EC2 instance.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "The sample pipeline describes deployment to AWS with image find the tags. The tag is parameterized and its getting deployed to EC2 instance",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,

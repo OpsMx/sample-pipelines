@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the kubernetes deployment through text manifest and delete the manifest.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the kubernetes deployment through text manifest and delete the manifest",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,

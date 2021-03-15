@@ -1,0 +1,42 @@
+{
+  "application": "sampleapp",
+  "description": "A sample pipeline which demonstrates the Jenkins stage to Build a Jenkins job and to get the required Build parameters.\nRequirements - Jenkins Integration need to be done with spinnaker. ",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "jenkins-stage",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "continuePipeline": false,
+      "failPipeline": true,
+      "job": "Dev-trigger-jenkins-demo",
+      "master": "opsmx-jenkins-dev",
+      "name": "Build-Job",
+      "parameters": {},
+      "propertyFile": "file.properties",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "type": "jenkins"
+    },
+    {
+      "completeOtherBranchesThenFail": false,
+      "continuePipeline": true,
+      "failOnFailedExpressions": true,
+      "failPipeline": false,
+      "name": "Evaluate Variables",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "ImageId",
+          "value": "${#stage(\"Build-Job\")[\"context\"][\"ImageId\"]}"
+        }
+      ]
+    }
+  ],
+  "triggers": []
+}

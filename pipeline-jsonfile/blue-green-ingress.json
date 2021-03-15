@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows blue-green deployment with Ingress based traffic handling.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows blue-green deployment with Ingress based traffic handling.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,

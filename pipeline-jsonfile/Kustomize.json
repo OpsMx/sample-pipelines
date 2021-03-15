@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the deployment through Kustomization chart.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the deployment through Kustomization chart.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "name": "kustomize-chart",

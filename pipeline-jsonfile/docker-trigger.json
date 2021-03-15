@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the docker registry auto trigger and deploys manifest to kubernetes by fetching the artifact from github.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the docker registry auto trigger and deploys manifest to kubernetes by fetching the artifact from github.",
   "expectedArtifacts": [],
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",

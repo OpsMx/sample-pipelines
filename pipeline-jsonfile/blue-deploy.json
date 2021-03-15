@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the blue-green deployment, Only blue deployment can be seen where the artifact is from github.For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows the blue-green deployment, Only blue deployment can be seen where the artifact is from github",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "name": "blue-deploy",

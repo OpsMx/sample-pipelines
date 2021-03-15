@@ -1,0 +1,92 @@
+{
+  "application": "sampleapp",
+  "description": "This sample pipeline shows the jenkins job will trigger the spinnaker pipelines and deploys the manifest based on properties from jenkins build. Requirements- Need to integrate jenkins account in spinnaker.",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "jenkins-trigger-deploy",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "failOnFailedExpressions": true,
+      "name": "Evaluate Variables",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "ImageBuildId",
+          "value": "${trigger[\"properties\"][\"ImageId\"]}"
+        }
+      ]
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "name": "sample-restapp"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "sample-restapp"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "sample-restapp"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "${trigger[\"properties\"][\"ImageId\"]}",
+                    "name": "sample-restapp",
+                    "ports": [
+                      {
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy (Manifest)",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [
+    {
+      "enabled": true,
+      "job": "Dev-trigger-jenkins-demo",
+      "master": "my-jenkins-master",
+      "propertyFile": "file.properties",
+      "type": "jenkins"
+    }
+  ]
+}

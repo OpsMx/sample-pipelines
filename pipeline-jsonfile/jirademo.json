@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows  jira trigger and deploys manifest according to the jira id states. For reference https://github.com/OpsMx/sample-pipelines",
+  "description": "This sample pipeline shows  jira trigger and deploys manifest according to the jira id states.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,

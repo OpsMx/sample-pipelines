@@ -18,3 +18,5 @@ spin pi save -f pipeline-jsonfile/Kustomize.json
 spin pi save -f pipeline-jsonfile/syncToGit.json
 spin pi save -f pipeline-jsonfile/syncToSpinnaker.json
 spin pi save -f pipeline-jsonfile/restart-halyard.json
+spin pi save -f pipeline-jsonfile/jenkins-stage.json
+spin pi save -f pipeline-jsonfile/jenkins-trigger.json
