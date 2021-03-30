@@ -1,43 +1,46 @@
 {
- "application": "sampleapp",
- "description": "Restart halyard to apply the changes when using gitOps. This pipeline can be automatically triggered using github webhook as well.",
- "id": "9bb1f16f-5efa-4501-9ca9-b2e3aa9e4b1c",
- "index": 19,
- "keepWaitingPipelines": false,
- "lastModifiedBy": "admin",
- "limitConcurrent": true,
- "name": "restart-halyard",
- "spelEvaluator": "v4",
- "stages": [
-  {
-   "account": "default",
-   "app": "sampleapp",
-   "cloudProvider": "kubernetes",
-   "kinds": [
-    "pod"
-   ],
-   "labelSelectors": {
-    "selectors": [
-     {
-      "key": "component",
-      "kind": "EQUALS",
-      "values": [
-       "halyard"
-      ]
-     }
-    ]
-   },
-   "location": "ninja-srini",
-   "mode": "label",
-   "name": "Delete (Manifest)",
-   "options": {
-    "cascading": true
-   },
-   "refId": "1",
-   "requisiteStageRefIds": [],
-   "type": "deleteManifest"
-  }
- ],
- "triggers": [],
- "updateTs": "1615293050000"
+  "application": "sampleapp",
+  "description": "Restart halyard to apply the changes when using gitOps. This pipeline can be automatically triggered using github webhook as well.",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin@opsmx.io",
+  "limitConcurrent": true,
+  "name": "restart-halyard",
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "app": "sampleapp",
+      "cloudProvider": "kubernetes",
+      "kinds": [
+        "pod"
+      ],
+      "labelSelectors": {
+        "selectors": [
+          {
+            "key": "component",
+            "kind": "EQUALS",
+            "values": [
+              "halyard"
+            ]
+          }
+        ]
+      },
+      "location": "default",
+      "mode": "label",
+      "name": "Delete (Manifest)",
+      "options": {
+        "cascading": true
+      },
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "type": "deleteManifest"
+    }
+  ],
+  "triggers": [
+    {
+      "enabled": true,
+      "source": "restartSpinnaker",
+      "type": "webhook"
+    }
+  ]
 }
