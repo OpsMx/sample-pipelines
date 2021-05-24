@@ -1,5 +1,5 @@
 {
- "application": "sampleapp",
+ "application": "opsmx-gitops",
  "id": "d2bfae24-b87a-4aa9-b35c-9d78040a8e1d",
  "index": 1,
  "keepWaitingPipelines": false,
@@ -12,7 +12,7 @@
    "alias": "preconfiguredJob",
    "name": "pipelineSyncToSpinnaker",
    "parameters": {
-    "spinnaker_applications": "sampleapp",
+    "spinnaker_applications": "opsmx-gitops",
     "spinnaker_pipelines": ""
    },
    "refId": "1",

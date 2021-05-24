@@ -1,5 +1,5 @@
 {
-  "application": "sampleapp",
+  "application": "opsmx-gitops",
   "description": "Restart halyard to apply the changes when using gitOps. This pipeline can be automatically triggered using github webhook as well.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin@opsmx.io",
@@ -9,7 +9,7 @@
   "stages": [
     {
       "account": "default",
-      "app": "sampleapp",
+      "app": "opsmx-gitops",
       "cloudProvider": "kubernetes",
       "kinds": [
         "pod"

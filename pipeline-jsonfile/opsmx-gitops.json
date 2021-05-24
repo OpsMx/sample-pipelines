@@ -1,0 +1,33 @@
+{
+ "cloudProviders": "kubernetes",
+ "customBanners": [
+  {
+   "backgroundColor": "var(--color-success-light)",
+   "enabled": true,
+   "text": "**Please see https://github.com/OpsMx/sample-pipelines**",
+   "textColor": "var(--color-text-secondary)"
+  }
+ ],
+ "dataSources": {
+  "disabled": [],
+  "enabled": []
+ },
+ "description": "Application automatically created with simple  Note that Admin user is required for this application.",
+ "email": "support@opsmx.com",
+ "instanceLinks": [
+  {
+   "links": [
+    {
+     "path": "https://github.com/OpsMx/sample-pipelines",
+     "title": "help"
+    }
+   ],
+   "title": "Help and configuration"
+  }
+ ],
+ "instancePort": 80,
+ "lastModifiedBy": "admin",
+ "name": "opsmx-gitops",
+ "trafficGuards": [],
+ "user": "admin"
+}
