@@ -12,7 +12,7 @@
   "disabled": [],
   "enabled": []
  },
- "description": "Application automatically created with simple  Note that Admin user is required for this application.",
+ "description": "Application required for OpsMx functionality. Admin priviledges required",
  "email": "support@opsmx.com",
  "instanceLinks": [
   {
