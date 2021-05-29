@@ -3,6 +3,11 @@
 This Sample-pipeline repo has Sample Application which has some basic sample pipelines of spinnaker.
 These pipelines can be set as default sample pipelines when spinnaker is installed.
 
+## Instructions for installing these pipelines
+1. Clone this repo : git clone https://github.com/OpsMx/sample-pipelines.git
+2. Install and configure spin-cli as per instructions given here: https://spinnaker.io/setup/spin/
+3. execute the create-app.sh : cd sample-pipelines ; ./create-app.sh
+
 ## Instructions for pipeline configurations
 
 #### Github Account Integration (Git artifact pipelines,Helm chart pipeline,blue-green deploy pipelines)
