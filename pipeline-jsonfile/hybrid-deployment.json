@@ -1,0 +1,269 @@
+{
+  "appConfig": {},
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "abhinay.byrisetty@opsmx.io",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "false",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "fail",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "continuePipeline": false,
+      "failPipeline": true,
+      "job": "Dev-build-hello-image",
+      "master": "opsmx-jenkins-dev",
+      "name": "Build container image",
+      "parameters": {},
+      "propertyFile": "file.properties",
+      "refId": "2",
+      "requisiteStageRefIds": [],
+      "type": "jenkins"
+    },
+    {
+      "continuePipeline": false,
+      "failPipeline": true,
+      "job": "Spin-Deb-AWS-Jav18-Build",
+      "master": "opsmx-jenkins-master",
+      "name": "Build debian package",
+      "parameters": {},
+      "refId": "3",
+      "requisiteStageRefIds": [],
+      "type": "jenkins"
+    },
+    {
+      "baseAmi": "ami-0df70cde1da5ba088",
+      "baseLabel": "release",
+      "baseName": "ops-ubuntu14-java-1",
+      "baseOs": "trusty",
+      "cloudProviderType": "aws",
+      "extendedAttributes": {},
+      "name": "Bake",
+      "package": "restapp",
+      "rebake": false,
+      "refId": "4",
+      "region": "us-east-1",
+      "regions": [
+        "us-east-1"
+      ],
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "skipRegionDetection": true,
+      "storeType": "ebs",
+      "type": "bake",
+      "user": "Sandesh",
+      "vmType": "hvm"
+    },
+    {
+      "clusters": [
+        {
+          "account": "my-aws-ec2-account",
+          "application": "multiclouddemo",
+          "associatePublicIpAddress": true,
+          "availabilityZones": {
+            "us-east-1": [
+              "us-east-1a"
+            ]
+          },
+          "capacity": {
+            "desired": 1,
+            "max": 1,
+            "min": 1
+          },
+          "cloudProvider": "aws",
+          "cooldown": 10,
+          "copySourceCustomBlockDeviceMappings": false,
+          "delayBeforeDisableSec": 0,
+          "delayBeforeScaleDownSec": 0,
+          "ebsOptimized": false,
+          "enabledMetrics": [],
+          "freeFormDetails": "dev",
+          "healthCheckGracePeriod": 600,
+          "healthCheckType": "EC2",
+          "iamRole": "ec2-instance",
+          "instanceMonitoring": false,
+          "instanceType": "t2.micro",
+          "keyPair": "EC2Keys",
+          "loadBalancers": [
+            "multiclouddemo-phani-loadbal"
+          ],
+          "maxRemainingAsgs": "2",
+          "moniker": {
+            "app": "multiclouddemo",
+            "detail": "dev",
+            "stack": "democluster"
+          },
+          "provider": "aws",
+          "rollback": {
+            "onFailure": true
+          },
+          "scaleDown": false,
+          "securityGroups": [
+            "sg-0f89b9be78a1cbf4c"
+          ],
+          "spelLoadBalancers": [],
+          "spelTargetGroups": [],
+          "spotPrice": "",
+          "stack": "democluster",
+          "strategy": "redblack",
+          "subnetType": "external (spinEC2vpc)",
+          "suspendedProcesses": [],
+          "tags": {
+            "Name": "restapp-dev-deploy"
+          },
+          "targetGroups": [],
+          "targetHealthyDeployPercentage": 100,
+          "terminationPolicies": [
+            "Default"
+          ],
+          "useAmiBlockDeviceMappings": false,
+          "useSourceCapacity": false
+        }
+      ],
+      "name": "Deploy EC2 on AWS",
+      "refId": "5",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "type": "deploy"
+    },
+    {
+      "expectedArtifacts": [
+        {
+          "defaultArtifact": {
+            "customKind": true,
+            "id": "fe2db310-d657-49ca-8472-3e9fad2a93b5"
+          },
+          "displayName": "black-chicken-6",
+          "id": "71bca433-3a40-487c-a964-9060aeb7d049",
+          "matchArtifact": {
+            "artifactAccount": "embedded-artifact",
+            "customKind": false,
+            "id": "74f932eb-0cf8-4cfd-bcee-b993d83c8286",
+            "name": "hello-app",
+            "type": "embedded/base64"
+          },
+          "useDefaultArtifact": false,
+          "usePriorArtifact": false
+        }
+      ],
+      "inputArtifacts": [
+        {
+          "account": "opsmx-repo",
+          "artifact": {
+            "artifactAccount": "opsmx-repo",
+            "id": "9dcc97be-1b42-4f47-9566-38871e6c66c1",
+            "name": "hello-kubernetes",
+            "type": "helm/chart",
+            "version": "1.0.0"
+          }
+        }
+      ],
+      "name": "Bake (Manifest)",
+      "namespace": "ab",
+      "outputName": "hello-app",
+      "overrides": {
+        "deployment.container.image.repository": "abhinaybyrisetty/hello-kubernetes",
+        "deployment.container.image.tag": "${#stage(\"Build container image\")[\"context\"][\"IMAGE_TAG\"]}"
+      },
+      "refId": "6",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "templateRenderer": "HELM3",
+      "type": "bakeManifest"
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifactId": "71bca433-3a40-487c-a964-9060aeb7d049",
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy K8s app",
+      "namespaceOverride": "default",
+      "refId": "7",
+      "requisiteStageRefIds": [
+        "6"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "name": "Run test suites",
+      "refId": "8",
+      "requisiteStageRefIds": [
+        "7",
+        "5"
+      ],
+      "type": "wait",
+      "waitTime": 5
+    },
+    {
+      "name": "Rollback deployments",
+      "refId": "9",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "alias": "preconfiguredWebhook",
+      "name": "JIRA: Create Issue",
+      "parameterValues": {},
+      "refId": "10",
+      "requisiteStageRefIds": [
+        "9"
+      ],
+      "statusUrlResolution": "getMethod",
+      "type": "addJiraIss"
+    },
+    {
+      "name": "Mark deployment as successful",
+      "refId": "11",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "stageEnabled": {
+        "expression": "${parameters.fail == 'true'}",
+        "type": "expression"
+      },
+      "type": "wait",
+      "waitTime": 30
+    }
+  ],
+  "triggers": [
+    {
+      "branch": "main",
+      "enabled": true,
+      "project": "abhinaybyrisetty",
+      "slug": "hello-kubernetes",
+      "source": "github",
+      "type": "git"
+    }
+  ],
+  "updateTs": "1623412478000"
+}

@@ -1,0 +1,437 @@
+{
+  "appConfig": {},
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "abhinay.byrisetty@opsmx.io",
+  "limitConcurrent": true,
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "continuePipeline": false,
+      "failPipeline": true,
+      "job": "Spin-Git-Restapp",
+      "master": "opsmx-jenkins-master",
+      "name": "Build",
+      "parameters": {},
+      "propertyFile": "file.properties",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "type": "jenkins"
+    },
+    {
+      "alias": "preconfiguredJob",
+      "name": "Image Scanning",
+      "parameters": {
+        "namespace": "spinterra",
+        "pass port number to send load": "restapp:${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}",
+        "pass the name of the docker registry in dockerhub": "opsmx11"
+      },
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "customJobaquasecStage"
+    },
+    {
+      "name": "SonarQube",
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "name": "Unit tests",
+      "refId": "4",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "account": "target-aks-cluster",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/max-version-history": "2"
+            },
+            "name": "opsmx-restapp"
+          },
+          "spec": {
+            "replicas": 1,
+            "revisionHistoryLimit": 2,
+            "selector": {
+              "matchLabels": {
+                "app": "opsmx-restapp"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "opsmx-restapp",
+                  "version": "${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "docker.io/opsmx11/restapp:${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}",
+                    "imagePullPolicy": "Always",
+                    "name": "restapp",
+                    "ports": [
+                      {
+                        "containerPort": 8080,
+                        "name": "http",
+                        "protocol": "TCP"
+                      },
+                      {
+                        "containerPort": 9090,
+                        "name": "prometheus",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ],
+                "imagePullSecrets": [
+                  {
+                    "name": "oes-repo"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "abtest"
+      },
+      "name": "Dev Deploy",
+      "refId": "6",
+      "requisiteStageRefIds": [
+        "2",
+        "3",
+        "4"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "name": "Functional tests",
+      "refId": "7",
+      "requisiteStageRefIds": [
+        "6"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "account": "QA-demo",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/max-version-history": "2"
+            },
+            "name": "opsmx-restapp"
+          },
+          "spec": {
+            "replicas": 1,
+            "revisionHistoryLimit": 2,
+            "selector": {
+              "matchLabels": {
+                "app": "opsmx-restapp"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "opsmx-restapp",
+                  "version": "${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "docker.io/opsmx11/restapp:${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}",
+                    "imagePullPolicy": "Always",
+                    "name": "restapp",
+                    "ports": [
+                      {
+                        "containerPort": 8080,
+                        "name": "http",
+                        "protocol": "TCP"
+                      },
+                      {
+                        "containerPort": 9090,
+                        "name": "prometheus",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ],
+                "imagePullSecrets": [
+                  {
+                    "name": "oes-repo"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "abtest"
+      },
+      "name": "QA Deploy",
+      "refId": "8",
+      "requisiteStageRefIds": [
+        "7"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "name": "Overload tests",
+      "refId": "9",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "name": "Performance and Characteristics tests",
+      "refId": "10",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "name": "Robustness tests",
+      "refId": "11",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "name": "Stress and Stability tests",
+      "refId": "12",
+      "requisiteStageRefIds": [
+        "8"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "account": "staging",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/max-version-history": "2"
+            },
+            "name": "opsmx-restapp"
+          },
+          "spec": {
+            "replicas": 1,
+            "revisionHistoryLimit": 2,
+            "selector": {
+              "matchLabels": {
+                "app": "opsmx-restapp"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "opsmx-restapp",
+                  "version": "${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "docker.io/opsmx11/restapp:${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}",
+                    "imagePullPolicy": "Always",
+                    "name": "restapp",
+                    "ports": [
+                      {
+                        "containerPort": 8080,
+                        "name": "http",
+                        "protocol": "TCP"
+                      },
+                      {
+                        "containerPort": 9090,
+                        "name": "prometheus",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ],
+                "imagePullSecrets": [
+                  {
+                    "name": "oes-repo"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "abtest"
+      },
+      "name": "Staging Deploy",
+      "refId": "13",
+      "requisiteStageRefIds": [
+        "12",
+        "9",
+        "10",
+        "11"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "name": "Regression tests",
+      "refId": "14",
+      "requisiteStageRefIds": [
+        "13"
+      ],
+      "type": "wait",
+      "waitTime": 30
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [],
+      "name": "Approval",
+      "notifications": [],
+      "refId": "15",
+      "requisiteStageRefIds": [
+        "14"
+      ],
+      "type": "manualJudgment"
+    },
+    {
+      "account": "Prod-demo",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/max-version-history": "2"
+            },
+            "name": "opsmx-restapp"
+          },
+          "spec": {
+            "replicas": 1,
+            "revisionHistoryLimit": 2,
+            "selector": {
+              "matchLabels": {
+                "app": "opsmx-restapp"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "opsmx-restapp",
+                  "version": "${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "docker.io/opsmx11/restapp:${#stage(\"Build\")[\"context\"][\"Buildnumber\"]}",
+                    "imagePullPolicy": "Always",
+                    "name": "restapp",
+                    "ports": [
+                      {
+                        "containerPort": 8080,
+                        "name": "http",
+                        "protocol": "TCP"
+                      },
+                      {
+                        "containerPort": 9090,
+                        "name": "prometheus",
+                        "protocol": "TCP"
+                      }
+                    ]
+                  }
+                ],
+                "imagePullSecrets": [
+                  {
+                    "name": "oes-repo"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Prod Deployment",
+      "refId": "16",
+      "requisiteStageRefIds": [
+        "15"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": true,
+        "options": {
+          "enableTraffic": true,
+          "namespace": "western-prod",
+          "services": [
+            "my-svc"
+          ],
+          "strategy": "redblack"
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [],
+  "updateTs": "1623412586000"
+}
