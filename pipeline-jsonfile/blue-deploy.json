@@ -34,7 +34,7 @@
   "spelEvaluator": "v4",
   "stages": [
     {
-      "account": "default",
+      "account": "dev",
       "cloudProvider": "kubernetes",
       "manifestArtifact": {
         "artifactAccount": "opsmxdemo_account",
