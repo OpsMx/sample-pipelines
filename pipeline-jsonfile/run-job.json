@@ -1,45 +1,154 @@
 {
  "appConfig": {},
  "application": "sampleapp",
- "id": "725bd161-026b-4c58-8311-a57e7af1c27b",
- "index": 1,
+ "description": "WITH PVC and CM\nThis pipe builds java apps using maven. A configmap initscript has the build script. A PVC gitrepo contains the repo and maven artifacts. A secret with git credentials is needed to be created in the namespace where this job runs. kubectl -n \u003cns\u003e create secret generic gitsecret --from-literal=gitusername=\u003cusername\u003e --from-literal=gitpassword=\u003cgittoken\u003e . Further jobs can be used to create docker images by mounting the same volume/PVC.",
+ "disabled": false,
+ "id": "cff52f1f-b626-43c5-853a-0c2547175c3d",
+ "index": 0,
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
- "name": "test2",
+ "name": "srini-create-artifact",
+ "parameterConfig": [
+  {
+   "default": "github.com/ksrinimba/sample-pipeline-manifest.git",
+   "description": "repo url do not use http ot https:// in the beginning",
+   "hasOptions": true,
+   "label": "",
+   "name": "repo",
+   "options": [
+    {
+     "value": "github.com/ksrinimba/sample-pipeline-manifest.git"
+    },
+    {
+     "value": "github.com/OpsMx/enterprise-spinnaker.git"
+    }
+   ],
+   "pinned": true,
+   "required": true
+  },
+  {
+   "default": "main",
+   "description": "the branch , commit sha or tag to checkout",
+   "hasOptions": true,
+   "label": "",
+   "name": "branch",
+   "options": [
+    {
+     "value": "main"
+    },
+    {
+     "value": "master"
+    }
+   ],
+   "pinned": true,
+   "required": true
+  },
+  {
+   "default": "false",
+   "description": "clean t he workspace to start a fresh build",
+   "hasOptions": true,
+   "label": "",
+   "name": "clean",
+   "options": [
+    {
+     "value": "true"
+    },
+    {
+     "value": "fasle"
+    }
+   ],
+   "pinned": false,
+   "required": false
+  },
+  {
+   "default": "quay.io/opsmxpublic/aws-helm:4",
+   "description": "choose docker image with maven and jdk versions https://hub.docker.com/_/maven has more options",
+   "hasOptions": true,
+   "label": "",
+   "name": "image",
+   "options": [
+    {
+     "value": "maven:3.6.3-jdk-8"
+    },
+    {
+     "value": "maven:3-jdk-11"
+    },
+    {
+     "value": "alpine/helm"
+    }
+   ],
+   "pinned": false,
+   "required": false
+  }
+ ],
  "spelEvaluator": "v4",
  "stages": [
   {
    "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "v1",
+     "data": {
+      "run.sh": "#!/bin/bash set -x\ncd /usr/src\ngit --version\n\nbasedir=$(echo $gitrepo | sed 's/\\// /g' | awk '{ print $NF}' | sed 's/.git//')\necho\nif [ \"$cleanworkspace\" = true ] ; then\necho \"deleting workspace $basedir\"\nrm -rf $basedir\nfi\n####################\necho checking if $basedir exists\necho\nif [ -d \"$basedir\" ]; then\necho updating \"$basedir\" with \"$gitbranch\" from \"https://\"$gitrepo\"\"\ncd $basedir\ngit checkout $gitbranch \ngit pull\nelse\necho cloning into \"$basedir\" with with \"$gitbranch\" from \"https://\"$gitrepo\"\"\ngit clone  \"https://\"$gitusername\":\"$gitpassword\"@\"$gitrepo\"\"\ncd $basedir\necho \"-----------------------------------------------------------------\"\ngit log -1 \necho \"-----------------------------------------------------------------\"\ngit checkout $gitbranch\nfi\n#########################\necho the current git status is\ngit status\necho\necho current revision of workspace is \ngit rev-parse HEAD\necho\nls -ltra\npwd \ncd charts \npwd \ntar czvf hello-world.tgz oes\nbase64Helm=`cat hello-world.tgz | base64 -w0` \npart1='{\"artifacts\":[{\"type\":\"embedded/base64\",\"reference\":\"'\npart2='\" ,\"name\":\"base64Helm\"}]}'\necho SPINNAKER_CONFIG_JSON=\"$part1$base64Helm$part2\"\n\n \n \n"
+     },
+     "kind": "ConfigMap",
+     "metadata": {
+      "annotations": {
+       "artifact.spinnaker.io/version": "false"
+      },
+      "name": "initscript",
+      "namespace": "default"
+     }
+    }
+   ],
+   "moniker": {
+    "app": "multiclouddemo"
+   },
+   "name": "deployscript",
+   "namespaceOverride": "default",
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "account": "default",
    "alias": "runJob",
-   "application": "sampleapp",
+   "application": "maven",
    "cloudProvider": "kubernetes",
    "consumeArtifact": {
-    "artifactAccount": "custom-artifact",
-    "id": "b75353cc-c9c2-42fe-b0be-6e483c368afe",
-    "name": "",
-    "reference": "",
+    "artifactAccount": "embedded-artifact",
+    "id": "d55145dd-3308-4eef-85cf-a83adb7c270f",
+    "name": "newhelm",
     "type": "embedded/base64"
    },
-   "consumeArtifactAccount": "custom-artifact",
-   "consumeArtifactId": "b75353cc-c9c2-42fe-b0be-6e483c368afe",
+   "consumeArtifactAccount": "embedded-artifact",
+   "consumeArtifactId": "d55145dd-3308-4eef-85cf-a83adb7c270f",
    "consumeArtifactSource": "propertyFile",
    "credentials": "default",
    "expectedArtifacts": [
     {
      "defaultArtifact": {
       "artifactAccount": "embedded-artifact",
-      "id": "1b5cb0fb-d210-41c2-8d5a-bdc1d5e9bf1a",
-      "name": "my-properties-file",
-      "reference": "",
+      "id": "b4c9d1a6-f8d1-4186-ab48-7523a30c2416",
+      "name": "oes",
       "type": "embedded/base64"
      },
-     "displayName": "fat-panda-6",
-     "id": "7c4cd2da-f3f9-47cc-a243-cd54f12e3241",
+     "displayName": "oes-helm",
+     "id": "134790c5-c955-4c07-ad1d-8f7422de96c4",
      "matchArtifact": {
       "artifactAccount": "embedded-artifact",
-      "id": "b4480705-cc57-46c4-9102-5238b434f300",
-      "name": "my-properties-file",
+      "id": "5bc82d5b-6ae1-47e0-93e4-e9a5e12be7e2",
+      "name": "base64Helm",
       "type": "embedded/base64"
      },
      "useDefaultArtifact": false,
@@ -50,54 +159,188 @@
     "apiVersion": "batch/v1",
     "kind": "Job",
     "metadata": {
-     "name": "fetch",
+     "annotations": {
+      "artifact.spinnaker.io/version": "false"
+     },
+     "generateName": "gitmavenjob-",
+     "labels": {
+      "app": "maven"
+     },
      "namespace": "default"
     },
     "spec": {
-     "backoffLimit": 2,
+     "backoffLimit": 0,
      "template": {
       "spec": {
        "containers": [
         {
-         "args": [
-          "echo SPINNAKER_CONFIG_JSON='{\"artifacts\":[{\"type\":\"embedded/base64\",\"reference\":\"hello I got it\",\"name\":\"my-properties-file\"}]}'"
-         ],
          "command": [
-          "/bin/sh",
-          "-c"
+          "bash",
+          "/tmp/initscript/run.sh"
          ],
-         "image": "opsmxdev/apline-with-curl",
-         "name": "getlogsnow"
+         "env": [
+          {
+           "name": "gitrepo",
+           "value": "${parameters.repo}"
+          },
+          {
+           "name": "gitbranch",
+           "value": "${parameters.branch}"
+          },
+          {
+           "name": "cleanworkspace",
+           "value": "${parameters.clean}"
+          },
+          {
+           "name": "gitusername",
+           "valueFrom": {
+            "secretKeyRef": {
+             "key": "gituser",
+             "name": "gitsecret"
+            }
+           }
+          },
+          {
+           "name": "gitpassword",
+           "valueFrom": {
+            "secretKeyRef": {
+             "key": "gitpwd",
+             "name": "gitsecret"
+            }
+           }
+          }
+         ],
+         "image": "${parameters.image}",
+         "name": "gitmavenstage",
+         "volumeMounts": [
+          {
+           "mountPath": "/usr/src",
+           "name": "gitrepo"
+          },
+          {
+           "mountPath": "/tmp/initscript/",
+           "name": "initscript"
+          }
+         ]
         }
        ],
-       "restartPolicy": "Never"
+       "restartPolicy": "Never",
+       "volumes": [
+        {
+         "emptyDir": {},
+         "name": "gitrepo"
+        },
+        {
+         "configMap": {
+          "defaultMode": 420,
+          "name": "initscript"
+         },
+         "name": "initscript"
+        }
+       ]
       }
      }
     }
    },
-   "name": "RunJob",
-   "propertyFile": "getlogsnow",
-   "refId": "1",
-   "requisiteStageRefIds": [],
+   "name": "Helm-job",
+   "propertyFile": "gitmavenstage",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "1"
+   ],
    "source": "text",
    "type": "runJobManifest"
   },
   {
    "failOnFailedExpressions": true,
    "name": "Evaluate Variables",
-   "refId": "2",
+   "refId": "5",
    "requisiteStageRefIds": [
-    "1"
+    "2"
    ],
    "type": "evaluateVariables",
    "variables": [
     {
      "key": "test",
-     "value": "${#stage('RunJob')['context']['artifacts']}"
+     "value": "${#stage('Helm-job')['context']['artifacts']}"
     }
    ]
+  },
+  {
+   "failPipeline": true,
+   "judgmentInputs": [],
+   "name": "Manual Judgment",
+   "notifications": [],
+   "refId": "6",
+   "requisiteStageRefIds": [
+    "5"
+   ],
+   "type": "manualJudgment"
+  },
+  {
+   "expectedArtifacts": [
+    {
+     "defaultArtifact": {
+      "customKind": true,
+      "id": "df45b02c-de99-48e2-b7a4-872d12628ea0"
+     },
+     "displayName": "swift-octopus-39",
+     "id": "911966c1-a026-436c-834c-e2f953eaff89",
+     "matchArtifact": {
+      "artifactAccount": "embedded-artifact",
+      "customKind": false,
+      "id": "32abd15f-2eba-46e7-b8c8-d6656f6c1945",
+      "name": "hello-world",
+      "type": "embedded/base64"
+     },
+     "useDefaultArtifact": false,
+     "usePriorArtifact": false
+    }
+   ],
+   "inputArtifacts": [
+    {
+     "account": "",
+     "id": "134790c5-c955-4c07-ad1d-8f7422de96c4"
+    }
+   ],
+   "name": "Bake (Manifest)",
+   "namespace": "default",
+   "outputName": "hello-world",
+   "overrides": {
+    "installSpinnaker": "false"
+   },
+   "refId": "7",
+   "requisiteStageRefIds": [
+    "6"
+   ],
+   "templateRenderer": "HELM3",
+   "type": "bakeManifest"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifestArtifactId": "911966c1-a026-436c-834c-e2f953eaff89",
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "default",
+   "refId": "8",
+   "requisiteStageRefIds": [
+    "7"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "artifact",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false,
+     "services": []
+    }
+   },
+   "type": "deployManifest"
   }
  ],
  "triggers": [],
- "updateTs": "1634231691000"
+ "updateTs": "1634367636000"
 }
