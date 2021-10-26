@@ -1,0 +1,103 @@
+{
+ "appConfig": {},
+ "application": "sampleapp",
+ "id": "725bd161-026b-4c58-8311-a57e7af1c27b",
+ "index": 1,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "test2",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "alias": "runJob",
+   "application": "sampleapp",
+   "cloudProvider": "kubernetes",
+   "consumeArtifact": {
+    "artifactAccount": "custom-artifact",
+    "id": "b75353cc-c9c2-42fe-b0be-6e483c368afe",
+    "name": "",
+    "reference": "",
+    "type": "embedded/base64"
+   },
+   "consumeArtifactAccount": "custom-artifact",
+   "consumeArtifactId": "b75353cc-c9c2-42fe-b0be-6e483c368afe",
+   "consumeArtifactSource": "propertyFile",
+   "credentials": "default",
+   "expectedArtifacts": [
+    {
+     "defaultArtifact": {
+      "artifactAccount": "embedded-artifact",
+      "id": "1b5cb0fb-d210-41c2-8d5a-bdc1d5e9bf1a",
+      "name": "my-properties-file",
+      "reference": "",
+      "type": "embedded/base64"
+     },
+     "displayName": "fat-panda-6",
+     "id": "7c4cd2da-f3f9-47cc-a243-cd54f12e3241",
+     "matchArtifact": {
+      "artifactAccount": "embedded-artifact",
+      "id": "b4480705-cc57-46c4-9102-5238b434f300",
+      "name": "my-properties-file",
+      "type": "embedded/base64"
+     },
+     "useDefaultArtifact": false,
+     "usePriorArtifact": false
+    }
+   ],
+   "manifest": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+     "name": "fetch",
+     "namespace": "default"
+    },
+    "spec": {
+     "backoffLimit": 2,
+     "template": {
+      "spec": {
+       "containers": [
+        {
+         "args": [
+          "echo SPINNAKER_CONFIG_JSON='{\"artifacts\":[{\"type\":\"embedded/base64\",\"reference\":\"hello I got it\",\"name\":\"my-properties-file\"}]}'"
+         ],
+         "command": [
+          "/bin/sh",
+          "-c"
+         ],
+         "image": "opsmxdev/apline-with-curl",
+         "name": "getlogsnow"
+        }
+       ],
+       "restartPolicy": "Never"
+      }
+     }
+    }
+   },
+   "name": "RunJob",
+   "propertyFile": "getlogsnow",
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "source": "text",
+   "type": "runJobManifest"
+  },
+  {
+   "failOnFailedExpressions": true,
+   "name": "Evaluate Variables",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "1"
+   ],
+   "type": "evaluateVariables",
+   "variables": [
+    {
+     "key": "test",
+     "value": "${#stage('RunJob')['context']['artifacts']}"
+    }
+   ]
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1634231691000"
+}
