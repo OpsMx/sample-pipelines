@@ -1,3 +1,11 @@
+############################################################################
+############################################################################
+# Job to create sample pipelines in spinnaker, useful if this job fails during
+# installation.
+# Simple find replace "oes" with name of the helm "release" and execute
+# kubectl replace --force -f create-sample-job.yaml <-n namespace>
+############################################################################
+############################################################################
 apiVersion: batch/v1
 kind: Job
 metadata:
