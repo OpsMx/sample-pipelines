@@ -1,14 +1,14 @@
 {
  "appConfig": {},
  "application": "sampleapp",
- "description": "WITH PVC and CM\nThis pipe builds java apps using maven. A configmap initscript has the build script. A PVC gitrepo contains the repo and maven artifacts. A secret with git credentials is needed to be created in the namespace where this job runs. kubectl -n \u003cns\u003e create secret generic gitsecret --from-literal=gitusername=\u003cusername\u003e --from-literal=gitpassword=\u003cgittoken\u003e . Further jobs can be used to create docker images by mounting the same volume/PVC.",
+ "description": "Sample pipeline to demonstrate Run-Job stage that creates an artifact. The config stage shows how different parameters can be used for executing different content in the same pipeline. ",
  "disabled": false,
  "id": "cff52f1f-b626-43c5-853a-0c2547175c3d",
  "index": 0,
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
- "name": "srini-create-artifact",
+ "name": "run-job-create-artifact",
  "parameterConfig": [
   {
    "default": "github.com/ksrinimba/sample-pipeline-manifest.git",
@@ -87,6 +87,7 @@
   {
    "account": "default",
    "cloudProvider": "kubernetes",
+   "comments": "This is a script that is executed in the next stage.",
    "manifests": [
     {
      "apiVersion": "v1",
@@ -125,6 +126,7 @@
    "alias": "runJob",
    "application": "maven",
    "cloudProvider": "kubernetes",
+   "comments": "This is a run-job stage that executes the script created in the previous stage. The user is expected to create git-secret in the namespace where this is going to run.",
    "consumeArtifact": {
     "artifactAccount": "embedded-artifact",
     "id": "d55145dd-3308-4eef-85cf-a83adb7c270f",
@@ -252,6 +254,7 @@
    "type": "runJobManifest"
   },
   {
+   "comments": "Evaluate stage lets us see the pipeline variables, artifact created in the previous stage, etc.",
    "failOnFailedExpressions": true,
    "name": "Evaluate Variables",
    "refId": "5",
@@ -342,5 +345,5 @@
   }
  ],
  "triggers": [],
- "updateTs": "1634367636000"
+ "updateTs": "1635327446000"
 }
