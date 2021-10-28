@@ -4,6 +4,7 @@
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
+  "name": "helm-bake-from-git-folder",
   "spelEvaluator": "v4",
   "stages": [
     {
