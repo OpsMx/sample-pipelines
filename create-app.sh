@@ -15,6 +15,7 @@ spin pi save -f pipeline-jsonfile/deploy-blue-ingress.json
 spin pi save -f pipeline-jsonfile/deploy-green-ingress.json
 spin pi save -f pipeline-jsonfile/blue-green-ingress.json
 spin pi save -f pipeline-jsonfile/kayenta-canary-analysis.json
+spin pi save -f pipeline-jsonfile/helm-bake-from-git-folder.json
 spin pi save -f pipeline-jsonfile/Kustomize.json
 spin pi save -f pipeline-jsonfile/syncToGit.json
 spin pi save -f pipeline-jsonfile/syncToSpinnaker.json
@@ -22,4 +23,4 @@ spin pi save -f pipeline-jsonfile/restart-halyard.json
 spin pi save -f pipeline-jsonfile/jenkins-stage.json
 spin pi save -f pipeline-jsonfile/jenkins-trigger.json
 spin pi save -f pipeline-jsonfile/run-job.json
-spin pi save -f pipeline-jsonfile/helm-bake-from-git-folder.json
+
