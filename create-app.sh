@@ -23,4 +23,3 @@ spin pi save -f pipeline-jsonfile/restart-halyard.json
 spin pi save -f pipeline-jsonfile/jenkins-stage.json
 spin pi save -f pipeline-jsonfile/jenkins-trigger.json
 spin pi save -f pipeline-jsonfile/run-job.json
-
