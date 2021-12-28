@@ -1,0 +1,212 @@
+{
+  "application": "sampleapp",
+  "description": "This sample pipeline which shows how to run a child pipeline in a loop",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "Parent-LoopTrigger",
+  "parameterConfig": [
+    {
+      "default": "true",
+      "description": "",
+      "hasOptions": true,
+      "label": "debug",
+      "name": "debug",
+      "options": [
+        {
+          "value": "true"
+        },
+        {
+          "value": "false"
+        }
+      ],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "2",
+      "description": "",
+      "hasOptions": false,
+      "label": "triggerparallel",
+      "name": "triggerparallel",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "1,2,3,4",
+      "description": "specify the values with , separated",
+      "hasOptions": false,
+      "label": "tenant_id",
+      "name": "tenant_id",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "failOnFailedExpressions": true,
+      "name": "Set Base Variables",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "ssl_no_verify",
+          "value": "True"
+        },
+        {
+          "key": "spinnaker_url",
+          "value": "https://opsmx-oesgate.saas.opsmx.com"
+        },
+        {
+          "key": "region",
+          "value": "us-east-1"
+        },
+        {
+          "key": "env",
+          "value": "opsmx"
+        },
+        {
+          "key": "trigger_webhook",
+          "value": "updateserver"
+        },
+        {
+          "key": "debug",
+          "value": "${ parameters.debug }"
+        },
+        {
+          "key": "trigger_parallel",
+          "value": "${ parameters.triggerparallel }"
+        },
+        {
+          "key": "trigger_job_timeout",
+          "value": "3600"
+        },
+        {
+          "key": "trigger_application",
+          "value": "looptrigger"
+        },
+        {
+          "key": "continue_on_failure",
+          "value": "${ parameters.continue_on_failure != \"true\" ? \"1\" : \"0\" }"
+        },
+        {
+          "key": "tenant_id",
+          "value": "${ parameters.tenant_id }"
+        },
+        {
+          "key": "token",
+          "value": "BEGCL875GHKG645"
+        }
+      ]
+    },
+    {
+      "account": "default",
+      "alias": "runJob",
+      "application": "opsplatform",
+      "cloudProvider": "kubernetes",
+      "comments": "",
+      "completeOtherBranchesThenFail": false,
+      "consumeArtifactSource": "propertyFile",
+      "continuePipeline": false,
+      "credentials": "default",
+      "failOnFailedExpressions": true,
+      "failPipeline": true,
+      "manifest": {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+          "name": "workertrigger"
+        },
+        "spec": {
+          "backoffLimit": 0,
+          "template": {
+            "spec": {
+              "containers": [
+                {
+                  "env": [
+                    {
+                      "name": "TRIGGER_URL",
+                      "value": "${ spinnaker_url }/webhooks/webhook/${ trigger_webhook }"
+                    },
+                    {
+                      "name": "DEBUG",
+                      "value": "${debug}"
+                    },
+                    {
+                      "name": "PARALLEL_LOOP",
+                      "value": "${ trigger_parallel }"
+                    },
+                    {
+                      "name": "TIMEOUT_LOOP",
+                      "value": "${ trigger_job_timeout }"
+                    },
+                    {
+                      "name": "TRIGGER_APPLICATION",
+                      "value": "${ trigger_application }"
+                    },
+                    {
+                      "name": "GATE",
+                      "value": "http://sapor-gate:8084"
+                    },
+                    {
+                      "name": "HALT_ON_ERROR",
+                      "value": "${ continue_on_failure }"
+                    },
+                    {
+                      "name": "PARAMETER_LOOP",
+                      "value": "{\n  \"name\": \"tenant_id\",\n  \"value\": \"${tenant_id}\"\n}"
+                    },
+                    {
+                      "name": "DATA",
+                      "value": "{\n  \"token\": \"${token}\",\n  \"parameters\": {\n    \"region\": \"${region}\",\n    \"env\": \"${env}\"\n  }\n}"
+                    }
+                  ],
+                  "image": "opsmxdev/looptrigger-symph:v2",
+                  "imagePullPolicy": "Always",
+                  "name": "wellheck"
+                }
+              ],
+              "restartPolicy": "Never"
+            }
+          }
+        }
+      },
+      "name": "Start another pipeline and see it through...",
+      "propertyFile": "wellheck",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "source": "text",
+      "type": "runJobManifest"
+    },
+    {
+      "failOnFailedExpressions": true,
+      "name": "Evaluate Variables",
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "child_pipeline_context",
+          "value": "${ execution.context.propertyFileContents }"
+        }
+      ]
+    }
+  ],
+  "triggers": []
+}
