@@ -62,3 +62,5 @@ These pipeline demonstrates various samples of pipelines in spinnaker.
    This pipeline is viceversa of previous one where the changes in the git repo will get updated in the spinnaker.
 ##### Restart-Halyard:
    This pipeline is used to restart the halyard pod of spinnaker. Usually when we sync or update the configuration.
+##### Parent-LoopTrigger:
+   This pipeline is used to run a child pipline(child-trigger) in a loop with the specified payload from the parent(Parent-LoopTrigger).
