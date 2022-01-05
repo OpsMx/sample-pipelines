@@ -67,7 +67,7 @@
         },
         {
           "key": "spinnaker_url",
-          "value": "https://opsmx-oesgate.saas.opsmx.com"
+          "value": "<gate-url>"
         },
         {
           "key": "region",
@@ -79,7 +79,7 @@
         },
         {
           "key": "trigger_webhook",
-          "value": "updateserver"
+          "value": "triggerpipe"
         },
         {
           "key": "debug",
@@ -95,7 +95,7 @@
         },
         {
           "key": "trigger_application",
-          "value": "looptrigger"
+          "value": "sampleapp"
         },
         {
           "key": "continue_on_failure",
