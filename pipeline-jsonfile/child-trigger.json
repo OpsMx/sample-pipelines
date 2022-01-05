@@ -3,7 +3,7 @@
   "description": "This sample pipeline runs in a loop when invoked by Parent-LoopTrigger Pipeline.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
-  "limitConcurrent": true,
+  "limitConcurrent": false,
   "name": "child-trigger",
   "parameterConfig": [
     {
@@ -90,12 +90,6 @@
       },
       "source": "triggerpipe",
       "type": "webhook"
-    },
-    {
-      "cronExpression": "0 0/1 * 1/1 * ? *",
-      "enabled": false,
-      "id": "5173b12d-93d5-4f6e-932a-4f65ea3f429b",
-      "type": "cron"
     }
   ]
 }
