@@ -1,0 +1,49 @@
+{
+ "application": "opsmx-gitops",
+ "id": "2b74f39a-fa01-4717-815e-5d3e74a7a7ec",
+ "index": 3,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "srinivas@opsmx.io",
+ "limitConcurrent": true,
+ "name": "clean-up-pipeline-promotion-jobs",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "app": "opsmx-gitops",
+   "cloudProvider": "kubernetes",
+   "kinds": [
+    "job"
+   ],
+   "labelSelectors": {
+    "selectors": [
+     {
+      "key": "stage",
+      "kind": "EQUALS",
+      "values": [
+       "opsmx-custom"
+      ]
+     },
+     {
+      "key": "stagetype",
+      "kind": "EQUALS",
+      "values": [
+       "pipelinepromotion"
+      ]
+     }
+    ]
+   },
+   "location": "opsmx-isd",
+   "mode": "label",
+   "name": "Delete (Manifest)",
+   "options": {
+    "cascading": true
+   },
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "type": "deleteManifest"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1644681465791"
+}
