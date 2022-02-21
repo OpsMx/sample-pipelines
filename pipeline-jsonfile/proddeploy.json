@@ -1,0 +1,148 @@
+{
+ "appConfig": {},
+ "application": "jirademo",
+ "description": "Demo to show Jira integration with Spinnaker. The pipeline waits for a jira ticket to be in a particular state before continuing.\n\nJira ticket OP-2380, once it moves to \"In Verification\" state, the pipeline goes forward.\nTODO: Gopi to confirm that \"In Verification\" state causes the pipeline to move forward.",
+ "id": "53104332-86ff-4b40-9014-96e2c8aa5b22",
+ "index": 1,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "proddeploy",
+ "parameterConfig": [
+  {
+   "default": "simple-restapp-65",
+   "description": "version to deploy",
+   "hasOptions": false,
+   "label": "version",
+   "name": "version",
+   "options": [],
+   "pinned": true,
+   "required": true
+  },
+  {
+   "default": "OP-2380",
+   "description": "",
+   "hasOptions": false,
+   "label": "jiraid",
+   "name": "jiraid",
+   "options": [
+    {
+     "value": ""
+    }
+   ],
+   "pinned": true,
+   "required": false
+  }
+ ],
+ "stages": [
+  {
+   "account": "target-aks-cluster",
+   "cloudProvider": "kubernetes",
+   "completeOtherBranchesThenFail": false,
+   "continuePipeline": false,
+   "failPipeline": true,
+   "manifestArtifactAccount": "docker-registry",
+   "manifests": [
+    {
+     "apiVersion": "apps/v1",
+     "kind": "ReplicaSet",
+     "metadata": {
+      "name": "opsmx-testjira-production"
+     },
+     "spec": {
+      "replicas": 1,
+      "selector": {
+       "matchLabels": {
+        "app": "opsmx-kube-deploys"
+       }
+      },
+      "template": {
+       "metadata": {
+        "labels": {
+         "app": "opsmx-kube-deploys"
+        }
+       },
+       "spec": {
+        "containers": [
+         {
+          "image": "docker.io/opsmx11/restapp:${parameters.version}",
+          "imagePullPolicy": "Always",
+          "name": "restapp",
+          "ports": [
+           {
+            "containerPort": 8080,
+            "name": "http",
+            "protocol": "TCP"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "apiVersion": "v1",
+     "kind": "Service",
+     "metadata": {
+      "name": "opsmx-svc-prod"
+     },
+     "spec": {
+      "ports": [
+       {
+        "name": "canary",
+        "port": 8080,
+        "protocol": "TCP",
+        "targetPort": 8080
+       }
+      ],
+      "selector": {
+       "app": "opsmx-kube-deploys"
+      },
+      "type": "LoadBalancer"
+     }
+    }
+   ],
+   "moniker": {
+    "app": "multiclouddemo"
+   },
+   "name": "Production_Deploy",
+   "namespaceOverride": "default",
+   "refId": "2",
+   "relationships": {
+    "loadBalancers": [],
+    "securityGroups": []
+   },
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": true,
+     "strategy": "redblack"
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Wait for Jira update",
+   "parameterValues": {
+    "cancel": "Done",
+    "issue": "${parameters.jiraid}",
+    "retry": "To Do, In Progress",
+    "success": "In Verification,Approved",
+    "terminate": "PR Raised"
+   },
+   "refId": "3",
+   "requisiteStageRefIds": [],
+   "statusUrlResolution": "getMethod",
+   "type": "waitJiraState"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1641900505000"
+}

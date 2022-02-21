@@ -1,0 +1,562 @@
+{
+ "appConfig": {},
+ "application": "jirademo",
+ "id": "4da220bd-220e-46eb-8045-f18e8d8c702d",
+ "index": 3,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "abhinay.byrisetty@opsmx.io",
+ "limitConcurrent": true,
+ "name": "jira-integration-end2end",
+ "parameterConfig": [],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "expectedArtifacts": [
+    {
+     "defaultArtifact": {
+      "customKind": true,
+      "id": "00fad840-abd2-46a9-9347-48013f04a982"
+     },
+     "displayName": "brown-crab-52",
+     "id": "6735a4f3-3171-4062-8d9e-e91cd06b434d",
+     "matchArtifact": {
+      "artifactAccount": "embedded-artifact",
+      "customKind": false,
+      "id": "663679fd-001b-4f76-86b1-d6b228b03cb4",
+      "name": "restapp",
+      "type": "embedded/base64"
+     },
+     "useDefaultArtifact": false,
+     "usePriorArtifact": false
+    }
+   ],
+   "inputArtifacts": [
+    {
+     "account": "helm-charts",
+     "artifact": {
+      "artifactAccount": "helm-charts",
+      "id": "7a1dfb52-f0fe-4ae4-856f-09b57427523f",
+      "reference": "s3://ab-helm-charts/stable/myapp/rest-app-0.1.0.tgz",
+      "type": "s3/object"
+     }
+    }
+   ],
+   "name": "Bake the chart",
+   "namespace": "restapp",
+   "outputName": "restapp",
+   "overrides": {
+    "image.repository": "${image}",
+    "image.tag": "${tag}",
+    "imagePullSecrets": "us-east-2-ecr-registry"
+   },
+   "refId": "1",
+   "requisiteStageRefIds": [
+    "19"
+   ],
+   "templateRenderer": "HELM3",
+   "type": "bakeManifest"
+  },
+  {
+   "account": "staging1",
+   "cloudProvider": "kubernetes",
+   "manifestArtifactId": "6735a4f3-3171-4062-8d9e-e91cd06b434d",
+   "moniker": {
+    "app": "lenskart-poc"
+   },
+   "name": "Deploy to staging",
+   "namespaceOverride": "restapp",
+   "refId": "3",
+   "requiredArtifactIds": [],
+   "requiredArtifacts": [],
+   "requisiteStageRefIds": [
+    "22"
+   ],
+   "skipExpressionEvaluation": true,
+   "source": "artifact",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "account": "",
+   "cloudProvider": "kubernetes",
+   "location": "",
+   "manifestName": "deployment opsmx-restapp",
+   "mode": "static",
+   "name": "Rollback",
+   "numRevisionsBack": 1,
+   "refId": "5",
+   "requisiteStageRefIds": [
+    "23"
+   ],
+   "stageEnabled": {
+    "expression": "${execution.stages.?[ name == \"Integrating testing on staging\"][0].status == \"FAILED_CONTINUE\"}",
+    "type": "expression"
+   },
+   "type": "undoRolloutManifest"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Close Jira ticket",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "targetStageID": "41"
+   },
+   "refId": "6",
+   "requisiteStageRefIds": [
+    "26"
+   ],
+   "stageEnabled": {
+    "expression": "${execution.stages.?[ name == \"Integrating testing on staging\"][0].status == \"FAILED_CONTINUE\"}",
+    "type": "expression"
+   },
+   "statusUrlResolution": "getMethod",
+   "type": "transJiraIss"
+  },
+  {
+   "account": "pre-prod",
+   "cloudProvider": "kubernetes",
+   "manifestArtifactId": "6735a4f3-3171-4062-8d9e-e91cd06b434d",
+   "moniker": {
+    "app": "lenskart-poc"
+   },
+   "name": "Deploy to pre production",
+   "namespaceOverride": "restapp",
+   "refId": "7",
+   "requisiteStageRefIds": [
+    "23"
+   ],
+   "skipExpressionEvaluation": true,
+   "source": "artifact",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "completeOtherBranchesThenFail": false,
+   "continuePipeline": true,
+   "failPipeline": false,
+   "job": "Spin-Load-Greeting",
+   "master": "opsmx-jenkins",
+   "name": "Integrating testing on pre-prod",
+   "parameters": {
+    "dnsip": "40.64.79.38",
+    "loadtime": "40"
+   },
+   "refId": "8",
+   "requisiteStageRefIds": [
+    "7"
+   ],
+   "type": "jenkins"
+  },
+  {
+   "account": "",
+   "cloudProvider": "kubernetes",
+   "location": "",
+   "manifestName": "deployment opsmx-restapp",
+   "mode": "static",
+   "name": "Rollback",
+   "numRevisionsBack": 1,
+   "refId": "9",
+   "requisiteStageRefIds": [
+    "8"
+   ],
+   "stageEnabled": {
+    "expression": "${execution.stages.?[ name == \"Integrating testing on pre-prod\"][0].status == \"FAILED_CONTINUE\"}",
+    "type": "expression"
+   },
+   "type": "undoRolloutManifest"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Update failure status in jira",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "Integration tests on pre-prod failed while upgrading to ${image}:${tag}"
+   },
+   "refId": "10",
+   "requisiteStageRefIds": [
+    "9"
+   ],
+   "stageEnabled": {
+    "expression": "${execution.stages.?[ name == \"Integrating testing on pre-prod\"][0].status == \"FAILED_CONTINUE\"}",
+    "type": "expression"
+   },
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Comment in jira Issue",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "Successfully ran integration tests on pre-prod environment"
+   },
+   "refId": "11",
+   "requisiteStageRefIds": [
+    "8"
+   ],
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "failPipeline": true,
+   "judgmentInputs": [
+    {
+     "value": "Approve"
+    },
+    {
+     "value": "Reject"
+    }
+   ],
+   "name": "Product sign off",
+   "notifications": [],
+   "refId": "12",
+   "requisiteStageRefIds": [
+    "11"
+   ],
+   "type": "manualJudgment"
+  },
+  {
+   "failPipeline": true,
+   "judgmentInputs": [
+    {
+     "value": "Approve"
+    },
+    {
+     "value": "Reject"
+    }
+   ],
+   "name": "DevOps sign off",
+   "notifications": [],
+   "refId": "13",
+   "requisiteStageRefIds": [
+    "12"
+   ],
+   "stageEnabled": {
+    "expression": "${#judgment(\"Product sign off\") == 'Approve'}",
+    "type": "expression"
+   },
+   "type": "manualJudgment"
+  },
+  {
+   "account": "prod",
+   "cloudProvider": "kubernetes",
+   "manifestArtifactId": "6735a4f3-3171-4062-8d9e-e91cd06b434d",
+   "moniker": {
+    "app": "lenskart-poc"
+   },
+   "name": "Deploy to production",
+   "namespaceOverride": "restapp",
+   "refId": "14",
+   "requisiteStageRefIds": [
+    "13"
+   ],
+   "skipExpressionEvaluation": true,
+   "source": "artifact",
+   "stageEnabled": {
+    "expression": "${#judgment(\"DevOps sign off\") == 'Approve'}",
+    "type": "expression"
+   },
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Comment in jira Issue",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "Production deployment successful"
+   },
+   "refId": "15",
+   "requisiteStageRefIds": [
+    "14"
+   ],
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Close Jira ticket",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "targetStageID": "41"
+   },
+   "refId": "16",
+   "requisiteStageRefIds": [
+    "15"
+   ],
+   "statusUrlResolution": "getMethod",
+   "type": "transJiraIss"
+  },
+  {
+   "name": "Product team disapproved production deployment",
+   "refId": "17",
+   "requisiteStageRefIds": [
+    "12"
+   ],
+   "stageEnabled": {
+    "expression": "${#judgment(\"Product sign off\") == 'Reject'}",
+    "type": "expression"
+   },
+   "type": "wait",
+   "waitTime": 30
+  },
+  {
+   "name": "DevOps team disapproved prod deployment",
+   "refId": "18",
+   "requisiteStageRefIds": [
+    "13"
+   ],
+   "stageEnabled": {
+    "expression": "${#judgment(\"DevOps sign off\") == 'Reject'}",
+    "type": "expression"
+   },
+   "type": "wait",
+   "waitTime": 30
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Create jira ticket for the release",
+   "parameterValues": {
+    "components": "OES",
+    "description": "${image}:${tag} is being deployed by spinnaker pipeline",
+    "issuetype": "Task",
+    "priority": "Low",
+    "projectid": "OP",
+    "summary": "${image}:${tag} is being deployed by spinnaker pipeline"
+   },
+   "refId": "19",
+   "requisiteStageRefIds": [
+    "31"
+   ],
+   "statusUrlResolution": "getMethod",
+   "type": "addJiraIss"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Update status in jira",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "Product team disapproved production deployment"
+   },
+   "refId": "20",
+   "requisiteStageRefIds": [
+    "17"
+   ],
+   "stageEnabled": {
+    "expression": "${#judgment(\"Product sign off\") == 'Reject'}",
+    "type": "expression"
+   },
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Update status in jira",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "DevOps team disapproved production deployment"
+   },
+   "refId": "21",
+   "requisiteStageRefIds": [
+    "18"
+   ],
+   "stageEnabled": {
+    "expression": "${#judgment(\"DevOps sign off\") == 'Reject'}",
+    "type": "expression"
+   },
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "name": "Decide which staging env to deploy!",
+   "refId": "22",
+   "requisiteStageRefIds": [
+    "1"
+   ],
+   "type": "wait",
+   "waitTime": 5
+  },
+  {
+   "completeOtherBranchesThenFail": false,
+   "continuePipeline": true,
+   "failPipeline": false,
+   "job": "Spin-Load-Greeting",
+   "master": "opsmx-jenkins",
+   "name": "Integrating testing on staging",
+   "parameters": {
+    "dnsip": "40.64.79.38",
+    "loadtime": "40"
+   },
+   "refId": "23",
+   "requisiteStageRefIds": [
+    "24"
+   ],
+   "type": "jenkins"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Comment in jira Issue",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "Successfully deployed ${image}:${tag} to staging environment"
+   },
+   "refId": "24",
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Update jira ticket status to in progress",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "targetStageID": "21"
+   },
+   "refId": "25",
+   "requisiteStageRefIds": [
+    "22"
+   ],
+   "statusUrlResolution": "getMethod",
+   "type": "transJiraIss"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Update failure status in jira",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "Integration tests on staging failed while upgrading to ${image}:${tag}"
+   },
+   "refId": "26",
+   "requisiteStageRefIds": [
+    "5"
+   ],
+   "stageEnabled": {
+    "expression": "${execution.stages.?[ name == \"Integrating testing on staging\"][0].status == \"FAILED_CONTINUE\"}",
+    "type": "expression"
+   },
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Close Jira ticket",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "targetStageID": "41"
+   },
+   "refId": "27",
+   "requisiteStageRefIds": [
+    "10"
+   ],
+   "stageEnabled": {
+    "expression": "${execution.stages.?[ name == \"Integrating testing on pre-prod\"][0].status == \"FAILED_CONTINUE\"}",
+    "type": "expression"
+   },
+   "statusUrlResolution": "getMethod",
+   "type": "transJiraIss"
+  },
+  {
+   "failPipeline": true,
+   "judgmentInputs": [
+    {
+     "value": "Yes"
+    },
+    {
+     "value": "No"
+    }
+   ],
+   "name": "Rollback prod?",
+   "notifications": [],
+   "refId": "28",
+   "requisiteStageRefIds": [
+    "15"
+   ],
+   "type": "manualJudgment"
+  },
+  {
+   "alias": "preconfiguredWebhook",
+   "name": "Comment in jira Issue",
+   "parameterValues": {
+    "issue": "${execution.stages.?[ type == 'addJiraIss'][0].context.webhook.body.key}",
+    "message": "Rolling back production deployment"
+   },
+   "refId": "29",
+   "requisiteStageRefIds": [
+    "28"
+   ],
+   "stageEnabled": {
+    "expression": "${#judgment(\"Rollback prod?\") == 'Yes'}",
+    "type": "expression"
+   },
+   "statusUrlResolution": "getMethod",
+   "type": "comJiraIss"
+  },
+  {
+   "account": "prod",
+   "cloudProvider": "kubernetes",
+   "location": "restapp",
+   "manifestName": "deployment opsmx-restapp",
+   "mode": "static",
+   "name": "Rollback prod",
+   "numRevisionsBack": 1,
+   "refId": "30",
+   "requisiteStageRefIds": [
+    "29"
+   ],
+   "stageEnabled": {
+    "expression": "${#judgment(\"Rollback prod?\") == 'Yes'}",
+    "type": "expression"
+   },
+   "type": "undoRolloutManifest"
+  },
+  {
+   "failOnFailedExpressions": true,
+   "name": "Evaluate Image",
+   "refId": "31",
+   "requisiteStageRefIds": [],
+   "type": "evaluateVariables",
+   "variables": [
+    {
+     "key": "image",
+     "value": "${trigger.artifacts[0].name}"
+    },
+    {
+     "key": "tag",
+     "value": "${trigger.artifacts[0].version}"
+    }
+   ]
+  }
+ ],
+ "triggers": [
+  {
+   "account": "my-ecr-registry",
+   "enabled": true,
+   "repository": "",
+   "type": "docker"
+  },
+  {
+   "account": "lenskart-ecr-registry",
+   "enabled": true,
+   "repository": "",
+   "type": "docker"
+  }
+ ],
+ "updateTs": "1641900505000"
+}

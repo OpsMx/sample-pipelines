@@ -1,0 +1,16 @@
+{
+ "cloudProviders": "kubernetes",
+ "createTs": "1594907540981",
+ "dataSources": {
+  "disabled": [],
+  "enabled": []
+ },
+ "description": "Demo to show Jira integration with Spinnaker. The pipeline waits for a jira ticket to be in a particular state before continuing.",
+ "email": "Yugandhar@opsmx.io",
+ "instancePort": 80,
+ "lastModifiedBy": "yugandhar@opsmx.io",
+ "name": "jirademo",
+ "trafficGuards": [],
+ "updateTs": "1641900505000",
+ "user": "yugandhar@opsmx.io"
+}
