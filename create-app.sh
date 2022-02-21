@@ -27,4 +27,3 @@ spin pi save -f pipeline-jsonfile/Parent-LoopTrigger.json
 spin pi save -f pipeline-jsonfile/child-trigger.json
 spin pi save -f pipeline-jsonfile/conditionals.json
 spin pi save -f pipeline-jsonfile/clean-up-pipeline-promotion-jobs.json
-
