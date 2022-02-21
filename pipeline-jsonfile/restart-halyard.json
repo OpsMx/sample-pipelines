@@ -25,7 +25,7 @@
           }
         ]
       },
-      "location": "oes",
+      "location": "opsmx-isd",
       "mode": "label",
       "name": "Delete (Manifest)",
       "options": {
