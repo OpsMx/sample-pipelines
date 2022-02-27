@@ -1,0 +1,149 @@
+{
+ "appConfig": {},
+ "application": "sampleapp",
+ "id": "f2e20ab7-d9e0-48b0-a2db-34aa19a704f6",
+ "index": 23,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "srinivas@opsmx.io",
+ "limitConcurrent": true,
+ "name": "Run-script-from-Git",
+ "parameterConfig": [
+  {
+   "default": "false",
+   "description": "",
+   "hasOptions": true,
+   "label": "",
+   "name": "skip",
+   "options": [
+    {
+     "value": "true"
+    }
+   ],
+   "pinned": false,
+   "required": false
+  }
+ ],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "alias": "runJob",
+   "application": "runjob",
+   "cloudProvider": "kubernetes",
+   "credentials": "default",
+   "manifest": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+     "name": "executescript",
+     "namespace": "default"
+    },
+    "spec": {
+     "backoffLimit": 2,
+     "template": {
+      "spec": {
+       "containers": [
+        {
+         "command": [
+          "sh",
+          "/opt/script/hello.sh"
+         ],
+         "image": "opsmxdev/apline-with-curl",
+         "name": "executescript",
+         "volumeMounts": [
+          {
+           "mountPath": "/opt/script",
+           "name": "script-configmap",
+           "readOnly": false
+          }
+         ]
+        }
+       ],
+       "restartPolicy": "Never",
+       "volumes": [
+        {
+         "configMap": {
+          "name": "script-configmap"
+         },
+         "name": "script-configmap"
+        }
+       ]
+      }
+     }
+    }
+   },
+   "name": "Run Script",
+   "refId": "1",
+   "requiredArtifactIds": [],
+   "requiredArtifacts": [],
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "source": "text",
+   "stageEnabled": {
+    "expression": "${parameters.skip} == false",
+    "type": "expression"
+   },
+   "type": "runJobManifest"
+  },
+  {
+   "method": "PUT",
+   "name": "Fetch Script",
+   "payload": {
+    "artifactAccount": "another-account",
+    "reference": "https://api.github.com/repos/yugaa22/hello-script/contents/hello.sh",
+    "type": "github/file",
+    "version": "master"
+   },
+   "refId": "2",
+   "requisiteStageRefIds": [],
+   "statusUrlResolution": "getMethod",
+   "type": "webhook",
+   "url": "http://spin-clouddriver-rw:7002/artifacts/fetch"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "v1",
+     "data": {
+      "hello.sh": "${#stage(\"Fetch Script\")[\"context\"][\"webhook\"][\"body\"]}"
+     },
+     "kind": "ConfigMap",
+     "metadata": {
+      "name": "script-configmap",
+      "namespace": "default"
+     }
+    }
+   ],
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Create ConfigMap",
+   "namespaceOverride": "default",
+   "refId": "3",
+   "requisiteStageRefIds": [
+    "2"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": [
+  {
+   "enabled": true,
+   "payloadConstraints": {},
+   "source": "manualdemo",
+   "type": "webhook"
+  }
+ ],
+ "updateTs": "1645803887992"
+}

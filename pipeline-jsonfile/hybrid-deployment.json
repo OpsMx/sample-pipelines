@@ -1,5 +1,7 @@
 {
-  "appConfig": {},
+  "application": "sampleapp",
+  "name": "hybrid-app-deployment",
+  "description": "Pipeline to show deployment of an application consisting of EC2 and k8s components",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "abhinay.byrisetty@opsmx.io",
   "limitConcurrent": true,

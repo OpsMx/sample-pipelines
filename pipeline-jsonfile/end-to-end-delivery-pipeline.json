@@ -1,5 +1,7 @@
 {
-  "appConfig": {},
+  "application": "sampleapp",
+  "description": "Pipeline to show end-to-end deployment through multi-stage pipeline",
+  "name": "end-to-end-delivery",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "abhinay.byrisetty@opsmx.io",
   "limitConcurrent": true,
