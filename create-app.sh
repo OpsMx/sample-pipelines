@@ -30,3 +30,5 @@ spin pi save -f pipeline-jsonfile/conditionals.json
 spin pi save -f pipeline-jsonfile/clean-up-pipeline-promotion-jobs.json
 spin pi save -f pipeline-jsonfile/jira-integration-end2end.json
 spin pi save -f pipeline-jsonfile/proddeploy.json 
+
+## Add end-to-end pipeline
