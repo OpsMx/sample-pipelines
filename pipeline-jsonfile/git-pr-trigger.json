@@ -1,7 +1,6 @@
 {
- "appConfig": {},
  "application": "sampleapp",
- "description": "PR webhook trigger the pipeline ",
+ "description": "PR webhook trigger the pipeline, check if the target is master and execute. Best for build-deploy-test based on PR requests.",
  "disabled": false,
  "id": "18449174-3e2f-4271-a293-eca3c0ebe746",
  "index": 22,
