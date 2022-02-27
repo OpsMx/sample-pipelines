@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows  kubernetes deployment by fetching the artifact from github.",
+  "description": "This sample pipeline shows  kubernetes deployment by fetching the artifact from https://github.com/OpsMx/sample-pipeline-manifest/tree/main/kubedeploys",
   "expectedArtifacts": [],
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",

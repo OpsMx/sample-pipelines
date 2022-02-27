@@ -1,6 +1,6 @@
 {
  "application": "sampleapp",
- "description":"Execute any arbitrary script stored in a git-repo. Update teh **another-acounti** to a valid git account and change the **reference** in the **Fetch Script** stage",
+ "description":"Execute any arbitrary script stored in a git-repo. Update the **another-account** to a valid git account and change the **reference** in the **Fetch Script** stage",
  "id": "f2e20ab7-d9e0-48b0-a2db-34aa19a704f6",
  "index": 23,
  "keepWaitingPipelines": false,
