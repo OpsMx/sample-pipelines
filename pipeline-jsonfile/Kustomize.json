@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows the deployment through Kustomization chart.",
+  "description": "This sample pipeline shows the deployment through Kustomization chart. Arfifact used can be found here: https://github.com/OpsMx/sample-pipeline-manifest",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "name": "kustomize-chart",
