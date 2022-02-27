@@ -1,5 +1,6 @@
 {
  "application": "opsmx-gitops",
+ "description": "Pipeline sync jobs pile up over time. This pipeline cleans up the jobs. Recommened to run on a schedule during a silent window.",
  "id": "2b74f39a-fa01-4717-815e-5d3e74a7a7ec",
  "index": 3,
  "keepWaitingPipelines": false,
