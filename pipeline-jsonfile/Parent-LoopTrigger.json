@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline which shows how to run a child pipeline in a loop",
+  "description": "This pipeline shows running multiple child pipelines based on data.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
