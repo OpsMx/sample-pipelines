@@ -1,0 +1,64 @@
+{
+{
+  "application": "sampleapp",
+  "description": "this pipeline shows the demo webhook trigger and values in evaluate and manual judgement stage",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "webhook-evaluate",
+  "parameterConfig": [
+    {
+      "default": "",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "failOnFailedExpressions": true,
+      "name": "Evaluate Variables",
+      "refId": "2",
+      "requisiteStageRefIds": [],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "commitid",
+          "value": "${trigger.hash}"
+        }
+      ]
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [],
+      "name": "Manual Judgment",
+      "notifications": [],
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "type": "manualJudgment"
+    }
+  ],
+  "triggers": [
+    {
+      "branch": "master",
+      "enabled": true,
+      "project": "chethan0007",
+      "secret": "1234567890",
+      "slug": "SampleApps",
+      "source": "github",
+      "type": "git"
+    }
+  ]
+
+}
