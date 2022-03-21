@@ -5,6 +5,7 @@
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
+ "description": "sync to spinnaker:- Downloads the applications and pipelines from the repo i.e configured and save it to the spinnaker. if the input is empty it downloads all the applications and pipelines. Branch and save path can also be specified as an input option to override the existing configuration",
  "name": "syncToSpinnaker",
  "spelEvaluator": "v4",
  "stages": [
