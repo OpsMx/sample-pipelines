@@ -1,5 +1,4 @@
 {
-{
   "application": "sampleapp",
   "description": "this pipeline shows the demo webhook trigger and values in evaluate and manual judgement stage",
   "keepWaitingPipelines": false,
@@ -60,5 +59,4 @@
       "type": "git"
     }
   ]
-
 }
