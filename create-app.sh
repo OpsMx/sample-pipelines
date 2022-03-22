@@ -32,6 +32,6 @@ spin pi save -f pipeline-jsonfile/jira-integration-end2end.json
 spin pi save -f pipeline-jsonfile/proddeploy.json 
 spin pi save -f pipeline-jsonfile/Run-script-from-Git.json
 spin pi save -f pipeline-jsonfile/git-pr-trigger.json
-spin pi save -f pipeline-jsonfile/hybrid-deployment.json ^C
-spin pi save -f pipeline-jsonfile/end-to-end-delivery-pipeline.json ^C
+spin pi save -f pipeline-jsonfile/hybrid-deployment.json
+spin pi save -f pipeline-jsonfile/end-to-end-delivery-pipeline.json
 spin pi save -f pipeline-jsonfile/evaluate-variable.json
