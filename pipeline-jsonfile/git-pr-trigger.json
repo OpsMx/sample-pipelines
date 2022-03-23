@@ -257,7 +257,6 @@
    "branch": "",
    "enabled": true,
    "project": "maheshopsmxorg",
-   "runAsUser": "trigger-serviceaccount",
    "secret": "",
    "slug": "wolters-pr-trigger",
    "source": "github",
