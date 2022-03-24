@@ -258,10 +258,9 @@
    "enabled": true,
    "project": "maheshopsmxorg",
    "secret": "",
-   "slug": "wolters-pr-trigger",
+   "slug": "mahesh-repo-trigger",
    "source": "github",
    "type": "git"
   }
- ],
- "updateTs": "1644372678726"
+ ]
 }

@@ -1,29 +1,29 @@
 {
   "application": "sampleapp",
-  "description": "this pipeline shows the demo webhook trigger and values in evaluate and manual judgement stage",
+  "description": "This pipeline shows the demo webhook trigger  with parameters and Constraints . Payload passes parameters and Constraints and call this trigger URL with POST method with the following payload\nWebhook URL :- http://GATE_URL/webhooks/webhook/webhook-trigger\nMethod :- POST\nPayload \n{\n  \"parameters\": {\n    \"email\": \"opsmx@opsmx.io\"\n  },\n  \"user\": \"opsmx\"\n}",
   "keepWaitingPipelines": false,
-  "lastModifiedBy": "admin",
+  "lastModifiedBy": "Admin",
   "limitConcurrent": true,
-  "name": "webhook-evaluate",
   "parameterConfig": [
     {
       "default": "",
       "description": "",
       "hasOptions": false,
-      "label": "",
-      "name": "",
+      "label": "email",
+      "name": "email",
       "options": [
         {
           "value": ""
         }
       ],
-      "pinned": false,
+      "pinned": true,
       "required": false
     }
   ],
   "spelEvaluator": "v4",
   "stages": [
     {
+      "comments": "",
       "failOnFailedExpressions": true,
       "name": "Evaluate Variables",
       "refId": "2",
@@ -31,32 +31,24 @@
       "type": "evaluateVariables",
       "variables": [
         {
-          "key": "commitid",
-          "value": "${trigger.hash}"
+          "key": "parameter_email",
+          "value": "${trigger.parameters.email}"
+        },
+        {
+          "key": "user",
+          "value": "${trigger.payload.user}"
         }
       ]
-    },
-    {
-      "failPipeline": true,
-      "judgmentInputs": [],
-      "name": "Manual Judgment",
-      "notifications": [],
-      "refId": "3",
-      "requisiteStageRefIds": [
-        "2"
-      ],
-      "type": "manualJudgment"
     }
   ],
   "triggers": [
     {
-      "branch": "master",
       "enabled": true,
-      "project": "chethan0007",
-      "secret": "1234567890",
-      "slug": "SampleApps",
-      "source": "github",
-      "type": "git"
+      "payloadConstraints": {
+        "user": "myvalue"
+      },
+      "source": "webhook-trigger",
+      "type": "webhook"
     }
   ]
 }
