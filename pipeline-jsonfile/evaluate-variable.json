@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "this pipeline shows the demo webhook trigger and values in evaluate and manual judgement stage",
+  "description": "This pipeline shows the demo webhook trigger and values in evaluate that are taken from trigger",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "Admin",
   "limitConcurrent": true,
