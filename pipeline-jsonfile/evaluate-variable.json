@@ -3,6 +3,7 @@
   "description": "This pipeline shows the demo webhook trigger  with parameters and Constraints . Payload passes parameters and Constraints and call this trigger URL with POST method with the following payload\nWebhook URL :- http://GATE_URL/webhooks/webhook/webhook-trigger\nMethod :- POST\nPayload \n{\n  \"parameters\": {\n    \"email\": \"opsmx@opsmx.io\"\n  },\n  \"user\": \"opsmx\"\n}",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "Admin",
+  "name": "webhook-evaluate",
   "limitConcurrent": true,
   "parameterConfig": [
     {
