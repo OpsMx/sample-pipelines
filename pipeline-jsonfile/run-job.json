@@ -197,7 +197,7 @@
            "name": "gitusername",
            "valueFrom": {
             "secretKeyRef": {
-             "key": "gituser",
+             "key": "gitusername",
              "name": "gitsecret"
             }
            }
