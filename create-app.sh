@@ -1,6 +1,8 @@
 spin application save -f pipeline-jsonfile/sampleapp.json
 spin application save -f pipeline-jsonfile/opsmx-gitops.json
 spin application save -f pipeline-jsonfile/jirademo-app.json
+spin application save -f pipeline-jsonfile/isd.json
+spin application save -f pipeline-jsonfile/spin.json
 spin pi save -f pipeline-jsonfile/opa-runtime-policy.json
 spin pi save -f pipeline-jsonfile/prod-static-policy.json
 spin pi save -f pipeline-jsonfile/git-trigger-deploy.json
