@@ -1,0 +1,14 @@
+{
+ "accounts": "default",
+ "cloudProviders": "",
+ "dataSources": {
+  "disabled": [],
+  "enabled": []
+ },
+ "email": "support@opsmx.com",
+ "instancePort": 80,
+ "lastModifiedBy": "admin",
+ "name": "isd",
+ "trafficGuards": [],
+ "user": "admin"
+}
