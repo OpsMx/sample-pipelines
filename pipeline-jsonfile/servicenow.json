@@ -1,6 +1,6 @@
 {
   "application": "sampleapp",
-  "description": "This sample pipeline shows custom stages available for service-now. Stages in the pipeline are Create servicenow request, Add worker note to the create request, Wait till the state of the request changes to desired state, Transition the state of the create request",
+  "description": "This sample pipeline shows custom stages available for service-now. Stages in the pipeline are Create servicenow request, Add worker note to the created request, Wait till the state of the request changes to desired state, Transition the state of the created request",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
