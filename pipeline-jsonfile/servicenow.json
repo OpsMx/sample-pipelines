@@ -1,0 +1,73 @@
+{
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "alias": "preconfiguredWebhook",
+      "name": "ServiceNow-Create Change Request",
+      "parameterValues": {
+        "backoutplan": "sample backout plan",
+        "changeplan": "sample change plan",
+        "deliveryplan": "sample delivery plan",
+        "description": "sample description",
+        "impact": "2",
+        "implementationplan": "sample implementation plan",
+        "priority": "3",
+        "shortdescription": "sample short description",
+        "type": "Normal"
+      },
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "statusUrlResolution": "getMethod",
+      "type": "CreateServiceNowChangeRequest"
+    },
+    {
+      "alias": "preconfiguredWebhook",
+      "name": "ServiceNow-Add Work Note to Change Request",
+      "parameterValues": {
+        "sysid": "${#stage('ServiceNow-Create Change Request')['context']['webhook']['body']['result'][sys_id]['value']}",
+        "worknotes": "added sample work note from OpsMx ISD pipeline"
+      },
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "statusUrlResolution": "getMethod",
+      "type": "AddWorkNotetoChangeRequst"
+    },
+    {
+      "alias": "preconfiguredWebhook",
+      "name": "Service Now: Wait for state",
+      "parameterValues": {
+        "cancel": "Closed",
+        "retry": "New",
+        "success": "Assess",
+        "sysid": "${#stage('ServiceNow-Create Change Request')['context']['webhook']['body']['result'][sys_id]['value']}",
+        "terminate": "Canceled"
+      },
+      "refId": "3",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "statusUrlResolution": "getMethod",
+      "type": "waitServiceNowState"
+    },
+    {
+      "alias": "preconfiguredWebhook",
+      "name": "ServiceNow-Change State of Change Request",
+      "parameterValues": {
+        "state": "New",
+        "sysid": "${#stage('ServiceNow-Create Change Request')['context']['webhook']['body']['result'][sys_id]['value']}"
+      },
+      "refId": "4",
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "statusUrlResolution": "getMethod",
+      "type": "ChangeStateofChangeRequest"
+    }
+  ],
+  "triggers": []
+}
