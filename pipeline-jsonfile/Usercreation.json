@@ -1,0 +1,152 @@
+{
+  "appConfig": {},
+  "description": "This pipeline is used to create users and groups in the openldap",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "",
+      "description": "user need to pass the value for user so that it the user and groups will be created in ldap",
+      "hasOptions": false,
+      "label": "",
+      "name": "user",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": true
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "",
+      "alias": "runJob",
+      "application": "ldap",
+      "cloudProvider": "kubernetes",
+      "consumeArtifactSource": "propertyFile",
+      "credentials": "",
+      "manifest": {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+          "generateName": "ldap-adduser",
+          "labels": {
+            "webhook": "opsmxtrial"
+          }
+        },
+        "spec": {
+          "backoffLimit": 2,
+          "template": {
+            "spec": {
+              "containers": [
+                {
+                  "args": [
+                    "LDAP_BASE=\"dc=example,dc=org\" \nLDAP_PASS=\"opsmxadmin123\" \nLDAP_HOST=\"ldap://isd-openldap:389\"\nx=`ldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=$user)\" | grep ^\"cn:\" | grep -w $user | wc -l`\nif [ $x -gt 0 ]\nthen\necho user already exists\necho SPINNAKER_PROPERTY_USEREXISTS=\"true\"\nexit 5\nelse\necho SPINNAKER_PROPERTY_USEREXISTS=\"false\"\nfi\nexport username=$user\nexport usergroup=$user_group\necho $username\necho $usergroup\n\nuserpwd=$(date| md5sum | awk '{print $1}')\necho $userpwd\nrm -rf /tmp/user.ldif\ncp /root/userbase.ldif /tmp/user.ldif\nsed -i -e \"s/appleuser/$username/g\" /tmp/user.ldif\nsed -i -e \"s/appledc/example/g\" /tmp/user.ldif\nsed -i -e  \"s/appleorg/org/g\" /tmp/user.ldif\nsed -i -e \"s/userpwd/$userpwd/g\" /tmp/user.ldif\nsed -i -e  \"s/applegroup/$usergroup/g\" /tmp/user.ldif\nsed -i -e \"s/ougroup/groups/g\" /tmp/user.ldif\n\ncat /tmp/user.ldif\n\nldapadd  -x -H  $LDAP_HOST  -w  $LDAP_PASS  -D \"cn=admin,$LDAP_BASE\" -f /tmp/user.ldif\nldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=*)\"\necho SPINNAKER_PROPERTY_USERNAME=$username\necho SPINNAKER_PROPERTY_USERPASSWORD=$userpwd"
+                  ],
+                  "command": [
+                    "/bin/sh",
+                    "+x",
+                    "-c"
+                  ],
+                  "env": [
+                    {
+                      "name": "user",
+                      "value": "${parameters.user}"
+                    }
+                  ],
+                  "image": "docker.io/osixia/openldap:1.2.4",
+                  "name": "ldapservice",
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/root/userbase.ldif",
+                      "name": "ldapbase-config",
+                      "subPath": "userbase.ldif"
+                    }
+                  ]
+                }
+              ],
+              "restartPolicy": "Never",
+              "volumes": [
+                {
+                  "configMap": {
+                    "defaultMode": 420,
+                    "name": "ldapusers"
+                  },
+                  "name": "ldapbase-config"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "name": "Run Job (Manifest)",
+      "propertyFile": "ldapservice",
+      "refId": "1",
+      "requisiteStageRefIds": [
+        "3"
+      ],
+      "source": "text",
+      "type": "runJobManifest"
+    },
+    {
+      "failOnFailedExpressions": true,
+      "name": "Evaluate Variables",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "user",
+          "value": "${parameters.user}"
+        },
+        {
+          "key": "password",
+          "value": "${userpassword}"
+        }
+      ]
+    },
+    {
+      "account": "",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "v1",
+          "data": {
+            "userbase.ldif": "dn: cn=appleuser,dc=appledc,dc=appleorg\nobjectClass: simpleSecurityObject\nobjectClass: organizationalRole\ncn: appleuser\nuserPassword: userpwd\n\ndn: cn=applegroup,ou=ougroup,dc=appledc,dc=appleorg\nobjectClass: groupOfNames\ncn: applegroup\ndescription: read and execute group\nmember: cn=admin,dc=appledc,dc=appleorg\nmember: cn=appleuser,dc=appledc,dc=appleorg\n"
+          },
+          "kind": "ConfigMap",
+          "metadata": {
+            "annotations": {
+              "strategy.spinnaker.io/versioned": "false"
+            },
+            "name": "ldapusers"
+          }
+        }
+      ],
+      "moniker": {
+        "app": "ldap"
+      },
+      "name": "configmap creation",
+      "namespaceOverride": "",
+      "refId": "3",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": [],
+  "updateTs": "1653897375000"
+}
