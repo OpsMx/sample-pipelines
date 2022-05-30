@@ -46,5 +46,3 @@ spin pi save -f pipeline-jsonfile/gitrepo.json
 spin pi save -f pipeline-jsonfile/helm-gitrepo.json
 spin pi save -f pipeline-jsonfile/http.json
 spin pi save -f pipeline-jsonfile/pubsub.json
-
-
