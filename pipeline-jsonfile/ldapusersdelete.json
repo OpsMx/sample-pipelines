@@ -1,0 +1,96 @@
+{
+  "appConfig": {},
+  "applicatiion": "sampleapp",
+  "name":"ldapuserdeletion",
+  "description": "This pipeline is used to deleted the users and groups from openldap",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "",
+      "description": "",
+      "hasOptions": false,
+      "label": "",
+      "name": "user",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": true
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "",
+      "alias": "runJob",
+      "application": "ldap",
+      "cloudProvider": "kubernetes",
+      "credentials": "",
+      "manifest": {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+          "generateName": "ldap-deletuser",
+          "labels": {
+            "webhook": "test"
+          }
+        },
+        "spec": {
+          "backoffLimit": 2,
+          "template": {
+            "spec": {
+              "containers": [
+                {
+                  "args": [
+                    "LDAP_BASE=\"dc=example,dc=org\" \nLDAP_PASS=\"opsmxadmin123\" \nLDAP_HOST=\"ldap://isd-openldap:389\"\n\n\nexport deluser=${user}\nexport delgroup=${user}_group\n\nldapdelete -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\"  \"cn=$delgroup,ou=groups,$LDAP_BASE\"\nldapdelete -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\"   \"cn=$deluser,$LDAP_BASE\"\nldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=*)\""
+                  ],
+                  "command": [
+                    "/bin/sh",
+                    "+x",
+                    "-c"
+                  ],
+                  "env": [
+                    {
+                      "name": "user",
+                      "value": "${parameters.user}"
+                    }
+                  ],
+                  "image": "docker.io/osixia/openldap:1.2.4",
+                  "name": "ldapservice",
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/root/userbase.ldif",
+                      "name": "ldapbase-config",
+                      "subPath": "userbase.ldif"
+                    }
+                  ]
+                }
+              ],
+              "restartPolicy": "Never",
+              "volumes": [
+                {
+                  "configMap": {
+                    "defaultMode": 420,
+                    "name": "ldapusers"
+                  },
+                  "name": "ldapbase-config"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "name": "Run Job (Manifest)",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "source": "text",
+      "type": "runJobManifest"
+    }
+  ],
+  "triggers": [],
+  "updateTs": "1653898277000"
+}
