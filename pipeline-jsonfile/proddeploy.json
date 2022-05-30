@@ -1,13 +1,13 @@
 {
  "appConfig": {},
- "application": "jirademo",
+ "application": "sampleapp",
  "description": "Demo to show Jira integration with Spinnaker. The pipeline waits for a jira ticket to be in a particular state before continuing.\n\nJira ticket OP-2380, once it moves to \"In Verification\" state, the pipeline goes forward.\nTODO: Gopi to confirm that \"In Verification\" state causes the pipeline to move forward.",
  "id": "53104332-86ff-4b40-9014-96e2c8aa5b22",
  "index": 1,
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
- "name": "proddeploy",
+ "name": "jira-proddeploy",
  "parameterConfig": [
   {
    "default": "simple-restapp-65",

@@ -1,6 +1,6 @@
 {
  "appConfig": {},
- "application": "jirademo",
+ "application": "sampleapp",
  "id": "4da220bd-220e-46eb-8045-f18e8d8c702d",
  "index": 3,
  "keepWaitingPipelines": false,
