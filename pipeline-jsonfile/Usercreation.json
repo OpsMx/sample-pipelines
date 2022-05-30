@@ -1,5 +1,7 @@
 {
   "appConfig": {},
+  "application": "sampleapp",
+  "name": "ldapusercreation",
   "description": "This pipeline is used to create users and groups in the openldap",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
