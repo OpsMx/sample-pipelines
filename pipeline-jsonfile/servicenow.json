@@ -4,6 +4,7 @@
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
+  "name": "servicenow",
   "spelEvaluator": "v4",
   "stages": [
     {

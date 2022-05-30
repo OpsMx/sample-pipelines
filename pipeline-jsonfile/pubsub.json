@@ -1,0 +1,45 @@
+{
+ "appConfig": {},
+ "application": "sampleapp",
+ "id": "275369a6-fa59-4245-901b-d6da23b7121f",
+ "index": 5,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "pubsub",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "gcbwithouttoken",
+   "application": "gcrtest",
+   "buildDefinition": {
+    "options": {
+     "logging": "CLOUD_LOGGING_ONLY"
+    },
+    "steps": [
+     {
+      "args": [
+       "--version"
+      ],
+      "entrypoint": "mvn",
+      "name": "maven:3-jdk-8"
+     }
+    ]
+   },
+   "buildDefinitionSource": "text",
+   "name": "Google Cloud Build",
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "type": "googleCloudBuild"
+  }
+ ],
+ "triggers": [
+  {
+   "enabled": true,
+   "pubsubSystem": "google",
+   "subscriptionName": "gcbwithouttoken",
+   "type": "pubsub"
+  }
+ ],
+ "updateTs": "1653395780000"
+}

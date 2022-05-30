@@ -1,0 +1,79 @@
+{
+ "application": "sampleapp",
+ "id": "953952ee-e9a6-4d27-bd19-54ccff49307e",
+ "index": 0,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "helm-gitrepo",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "expectedArtifacts": [
+    {
+     "defaultArtifact": {
+      "customKind": true,
+      "id": "ae5c21cc-c404-4389-b874-eaabe3131f9b"
+     },
+     "displayName": "spotty-elephant-59",
+     "id": "21fe353e-912f-4570-85a3-3a151c183ae8",
+     "matchArtifact": {
+      "artifactAccount": "embedded-artifact",
+      "customKind": false,
+      "id": "c5a8ff91-d0ac-4222-a43f-40aa84e7f178",
+      "name": "test",
+      "type": "embedded/base64"
+     },
+     "useDefaultArtifact": false,
+     "usePriorArtifact": false
+    }
+   ],
+   "inputArtifacts": [
+    {
+     "account": "opsmx-oes-helm-repo",
+     "artifact": {
+      "artifactAccount": "opsmx-oes-helm-repo",
+      "id": "d4860336-304f-4b5e-be5c-80b5a64362c4",
+      "name": "rest-app",
+      "type": "helm/chart",
+      "version": "0.1.0"
+     }
+    }
+   ],
+   "name": "Bake (Manifest)",
+   "namespace": "test",
+   "outputName": "test",
+   "overrides": {},
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "templateRenderer": "HELM3",
+   "type": "bakeManifest"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifestArtifactId": "21fe353e-912f-4570-85a3-3a151c183ae8",
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "isd3124testing",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "1"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "artifact",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false,
+     "services": []
+    }
+   },
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1653397360000"
+}
