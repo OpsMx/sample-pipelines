@@ -48,4 +48,4 @@ spin pi save -f pipeline-jsonfile/http.json
 spin pi save -f pipeline-jsonfile/pubsub.json
 ###
 spin pi save -f pipeline-jsonfile/Usercreation.json
-spin pi save -f pipeline-jsonfile/Usersdelete.json
+spin pi save -f pipeline-jsonfile/Userdelete.json
