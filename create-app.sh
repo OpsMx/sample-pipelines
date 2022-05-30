@@ -37,4 +37,14 @@ spin pi save -f pipeline-jsonfile/git-pr-trigger.json
 spin pi save -f pipeline-jsonfile/hybrid-deployment.json
 spin pi save -f pipeline-jsonfile/end-to-end-delivery-pipeline.json
 spin pi save -f pipeline-jsonfile/evaluate-variable.json
+###
 spin pi save -f pipeline-jsonfile/servicenow.json
+spin pi save -f pipeline-jsonfile/gcb.json
+spin pi save -f pipeline-jsonfile/gcr-test.json
+spin pi save -f pipeline-jsonfile/gcs.json
+spin pi save -f pipeline-jsonfile/gitrepo.json
+spin pi save -f pipeline-jsonfile/helm-gitrepo.json
+spin pi save -f pipeline-jsonfile/http.json
+spin pi save -f pipeline-jsonfile/pubsub.json
+
+
