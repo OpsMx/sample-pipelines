@@ -1,6 +1,6 @@
 {
   "appConfig": {},
-  "applicatiion": "sampleapp",
+  "application": "sampleapp",
   "name": "ldapuserdeletion",
   "description": "This pipeline is used to deleted the users and groups from openldap",
   "keepWaitingPipelines": false,
