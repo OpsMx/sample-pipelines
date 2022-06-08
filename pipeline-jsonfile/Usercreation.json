@@ -2,17 +2,31 @@
   "appConfig": {},
   "application": "opsmx-gitops",
   "name": "ldapusercreation",
-  "description": "This pipeline is used to create users and groups in the openldap",
+  "description": "This pipeline helps us to create user and group in the openldap. The parameter which we pass as user will be the username of ISD UI and the usergroup which we pass will be the group of above particular user.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
   "parameterConfig": [
     {
       "default": "",
-      "description": "user need to pass the value for user so that it the user and groups will be created in ldap",
+      "description": "The user need to pass the value for user so that the particular user will be created in ldap",
       "hasOptions": false,
       "label": "",
       "name": "user",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": true
+    },
+    {
+      "default": "test",
+      "description": "The usergroup value need to be passed so that  that particular group will be created in openldap",
+      "hasOptions": false,
+      "label": "",
+      "name": "usergroup",
       "options": [
         {
           "value": ""
@@ -25,12 +39,13 @@
   "spelEvaluator": "v4",
   "stages": [
     {
-      "account": "",
+      "account": "default",
       "alias": "runJob",
       "application": "ldap",
       "cloudProvider": "kubernetes",
+      "comments": "This stage checks if the users exists in ldap or not and creates a user and group.",
       "consumeArtifactSource": "propertyFile",
-      "credentials": "",
+      "credentials": "default",
       "manifest": {
         "apiVersion": "batch/v1",
         "kind": "Job",
@@ -47,7 +62,7 @@
               "containers": [
                 {
                   "args": [
-                    "LDAP_BASE=\"dc=example,dc=org\" \nLDAP_PASS=\"opsmxadmin123\" \nLDAP_HOST=\"ldap://isd-openldap:389\"\nx=`ldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=$user)\" | grep ^\"cn:\" | grep -w $user | wc -l`\nif [ $x -gt 0 ]\nthen\necho user already exists\necho SPINNAKER_PROPERTY_USEREXISTS=\"true\"\nexit 5\nelse\necho SPINNAKER_PROPERTY_USEREXISTS=\"false\"\nfi\nexport username=$user\nexport usergroup=$user_group\necho $username\necho $usergroup\n\nuserpwd=$(date| md5sum | awk '{print $1}')\necho $userpwd\nrm -rf /tmp/user.ldif\ncp /root/userbase.ldif /tmp/user.ldif\nsed -i -e \"s/appleuser/$username/g\" /tmp/user.ldif\nsed -i -e \"s/appledc/example/g\" /tmp/user.ldif\nsed -i -e  \"s/appleorg/org/g\" /tmp/user.ldif\nsed -i -e \"s/userpwd/$userpwd/g\" /tmp/user.ldif\nsed -i -e  \"s/applegroup/$usergroup/g\" /tmp/user.ldif\nsed -i -e \"s/ougroup/groups/g\" /tmp/user.ldif\n\ncat /tmp/user.ldif\n\nldapadd  -x -H  $LDAP_HOST  -w  $LDAP_PASS  -D \"cn=admin,$LDAP_BASE\" -f /tmp/user.ldif\nldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=*)\"\necho SPINNAKER_PROPERTY_USERNAME=$username\necho SPINNAKER_PROPERTY_USERPASSWORD=$userpwd"
+                    "LDAP_BASE=\"dc=example,dc=org\" \nLDAP_PASS=\"opsmxadmin123\" \nLDAP_HOST=\"ldap://isd-openldap:389\"\nx=`ldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=$user)\" | grep ^\"cn:\" | grep -w $user | wc -l`\nif [ $x -gt 0 ]\nthen\necho user already exists\necho SPINNAKER_PROPERTY_USEREXISTS=\"true\"\nexit 5\nelse\necho SPINNAKER_PROPERTY_USEREXISTS=\"false\"\nfi\nexport username=$user\nexport usergroup=$usergroup\necho $username\necho $usergroup\n\nuserpwd=$(date| md5sum | awk '{print $1}')\necho $userpwd\nrm -rf /tmp/user.ldif\ncp /root/userbase.ldif /tmp/user.ldif\nsed -i -e \"s/devuser/$username/g\" /tmp/user.ldif\nsed -i -e \"s/devdc/example/g\" /tmp/user.ldif\nsed -i -e  \"s/devorg/org/g\" /tmp/user.ldif\nsed -i -e \"s/userpwd/$userpwd/g\" /tmp/user.ldif\nsed -i -e  \"s/devgroup/$usergroup/g\" /tmp/user.ldif\nsed -i -e \"s/ougroup/groups/g\" /tmp/user.ldif\n\ncat /tmp/user.ldif\n\nldapadd  -x -H  $LDAP_HOST  -w  $LDAP_PASS  -D \"cn=admin,$LDAP_BASE\" -f /tmp/user.ldif\nldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=*)\"\necho SPINNAKER_PROPERTY_USERNAME=$username\necho SPINNAKER_PROPERTY_USERPASSWORD=$userpwd"
                   ],
                   "command": [
                     "/bin/sh",
@@ -58,6 +73,10 @@
                     {
                       "name": "user",
                       "value": "${parameters.user}"
+                    },
+                    {
+                      "name": "usergroup",
+                      "value": "${parameters.usergroup}"
                     }
                   ],
                   "image": "docker.io/osixia/openldap:1.2.4",
@@ -95,6 +114,7 @@
       "type": "runJobManifest"
     },
     {
+      "comments": "This stage will display the username and password and the user belongs to which group in console output.",
       "failOnFailedExpressions": true,
       "name": "Evaluate Variables",
       "refId": "2",
@@ -110,17 +130,22 @@
         {
           "key": "password",
           "value": "${userpassword}"
+        },
+        {
+          "key": "usergroup",
+          "value": "${parameters.usergroup}"
         }
       ]
     },
     {
-      "account": "",
+      "account": "default",
       "cloudProvider": "kubernetes",
+      "comments": "This stage is used for creation of configmap and it will be used in next stage.",
       "manifests": [
         {
           "apiVersion": "v1",
           "data": {
-            "userbase.ldif": "dn: cn=appleuser,dc=appledc,dc=appleorg\nobjectClass: simpleSecurityObject\nobjectClass: organizationalRole\ncn: appleuser\nuserPassword: userpwd\n\ndn: cn=applegroup,ou=ougroup,dc=appledc,dc=appleorg\nobjectClass: groupOfNames\ncn: applegroup\ndescription: read and execute group\nmember: cn=admin,dc=appledc,dc=appleorg\nmember: cn=appleuser,dc=appledc,dc=appleorg\n"
+            "userbase.ldif": "dn: cn=devuser,dc=devdc,dc=devorg\nobjectClass: simpleSecurityObject\nobjectClass: organizationalRole\ncn: devuser\nuserPassword: userpwd\n\ndn: cn=devgroup,ou=ougroup,dc=devdc,dc=devorg\nobjectClass: groupOfNames\ncn: devgroup\ndescription: read and execute group\nmember: cn=admin,dc=devdc,dc=devorg\nmember: cn=devuser,dc=devdc,dc=devorg\n"
           },
           "kind": "ConfigMap",
           "metadata": {
@@ -150,5 +175,5 @@
     }
   ],
   "triggers": [],
-  "updateTs": "1653897375000"
+  "updateTs": "1654267824000"
 }

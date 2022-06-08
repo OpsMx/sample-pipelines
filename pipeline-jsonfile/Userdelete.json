@@ -2,14 +2,14 @@
   "appConfig": {},
   "application": "opsmx-gitops",
   "name": "ldapuserdeletion",
-  "description": "This pipeline is used to deleted the users and groups from openldap",
+  "description": "This pipeline is used to deleted the users and groups from openldap.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
   "parameterConfig": [
     {
       "default": "",
-      "description": "",
+      "description": "The user need to pass the value for user so that the particular user will be deleted in ldap",
       "hasOptions": false,
       "label": "",
       "name": "user",
@@ -20,16 +20,30 @@
       ],
       "pinned": true,
       "required": true
+    },
+    {
+      "default": "test",
+      "description": "The usergroup value need to be passed so that  that particular group will be deleted in openldap",
+      "hasOptions": false,
+      "label": "",
+      "name": "usergroup",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
     }
   ],
   "spelEvaluator": "v4",
   "stages": [
     {
-      "account": "",
+      "account": "default",
       "alias": "runJob",
       "application": "ldap",
       "cloudProvider": "kubernetes",
-      "credentials": "",
+      "credentials": "default",
       "manifest": {
         "apiVersion": "batch/v1",
         "kind": "Job",
@@ -46,7 +60,7 @@
               "containers": [
                 {
                   "args": [
-                    "LDAP_BASE=\"dc=example,dc=org\" \nLDAP_PASS=\"opsmxadmin123\" \nLDAP_HOST=\"ldap://isd-openldap:389\"\n\n\nexport deluser=${user}\nexport delgroup=${user}_group\n\nldapdelete -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\"  \"cn=$delgroup,ou=groups,$LDAP_BASE\"\nldapdelete -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\"   \"cn=$deluser,$LDAP_BASE\"\nldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=*)\""
+                    "LDAP_BASE=\"dc=example,dc=org\" \nLDAP_PASS=\"opsmxadmin123\" \nLDAP_HOST=\"ldap://isd-openldap:389\"\n\n\nexport deluser=$user\nexport delgroup=$usergroup\n\nldapdelete -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\"  \"cn=$delgroup,ou=groups,$LDAP_BASE\"\nldapdelete -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\"   \"cn=$deluser,$LDAP_BASE\"\nldapsearch -x -H  $LDAP_HOST -w $LDAP_PASS  -D  \"cn=admin,$LDAP_BASE\" -b $LDAP_BASE \"(cn=*)\""
                   ],
                   "command": [
                     "/bin/sh",
@@ -57,6 +71,10 @@
                     {
                       "name": "user",
                       "value": "${parameters.user}"
+                    },
+                    {
+                      "name": "usergroup",
+                      "value": "${parameters.usergroup}"
                     }
                   ],
                   "image": "docker.io/osixia/openldap:1.2.4",
@@ -92,5 +110,5 @@
     }
   ],
   "triggers": [],
-  "updateTs": "1653898277000"
+  "updateTs": "1654268293000"
 }
