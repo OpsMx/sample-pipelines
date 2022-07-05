@@ -1,0 +1,301 @@
+{
+  "appConfig": {},
+  "application": "opsmx-gitops",
+  "description": "This pipe upgrades the postgres db used by isd. The script that upgrades is in github. Before you run this pipe, make sure the byos-set-up-pipe and byos-postgres-db-backup are run and the secrets for github and postgres are created. Choose the parameters accordingly. more info at https://github.com/OpsMx/byos/blob/main/Postgres/Readme.md",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "gopal.jayanti@opsmx.io",
+  "limitConcurrent": true,
+  "name": "byos-Postgres-DB-upgrade",
+  "parameterConfig": [
+    {
+      "default": "[example: ] scripts/oes-data-migration-scripts/migration_v3.12.5_to_v3.12.6.py",
+      "description": "changesforeachrun, make sure the from and to versions are right, path to script from repo   https://github.com/OpsMx/enterprise-spinnaker",
+      "hasOptions": false,
+      "label": "",
+      "name": "path",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": false
+    },
+    {
+      "default": "",
+      "description": "onetimesetup, kubernetes namespace where the oes-db and the gittoken and pgpassword exist",
+      "hasOptions": false,
+      "label": "",
+      "name": "namespace",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": false
+    },
+    {
+      "default": "gittoken,pgpassword",
+      "description": "onetimesetup, kubernetes secrets for github and postgres, create these secrets manually before you run this pipe",
+      "hasOptions": false,
+      "label": "",
+      "name": "secretname",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": false
+    },
+    {
+      "default": "",
+      "description": "onetimesetup, git repo user id, for the repo where the upgrade scripts are located",
+      "hasOptions": false,
+      "label": "",
+      "name": "username",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": false
+    },
+    {
+      "default": "github.com/opsmx/enterprise-spinnaker",
+      "description": "onetimesetup, the github repo url without protocol, where the upgrade scripts are",
+      "hasOptions": false,
+      "label": "",
+      "name": "url",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": true
+    },
+    {
+      "default": "master",
+      "description": "onetimesetup, git repo branch",
+      "hasOptions": false,
+      "label": "",
+      "name": "branch",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": true
+    },
+    {
+      "default": "host=\"oes-db\",port=5432,pguser=postgres",
+      "description": "onetimesetup, environment variables, if the db is in different namespace use \"oes-db.<namespace> as host, if external db replace oes-db with the url/ipadress, change the pguser to the externaldb username",
+      "hasOptions": false,
+      "label": "",
+      "name": "envs",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": true
+    },
+    {
+      "default": "default",
+      "description": "onetimesetup, the kubernetes account where you want to deploy the runjob, where the database the needs backup exists.",
+      "hasOptions": false,
+      "label": "",
+      "name": "account",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": true,
+      "required": true
+    },
+    {
+      "default": "quay.io/opsmxpublic/ubi8-oes-platform:v3.12.5",
+      "description": "onetimesetup, image used by script running container, don't change this unless you have another python3 image",
+      "hasOptions": false,
+      "label": "",
+      "name": "scriptimage",
+      "options": [
+        {
+          "value": "hashicorp/packer:latest"
+        },
+        {
+          "value": "hashicorp/terraform"
+        },
+        {
+          "value": "mysql:8.0.29"
+        },
+        {
+          "value": "postgres:13-alpine"
+        },
+        {
+          "value": "willhallonline/ansible:latest"
+        },
+        {
+          "value": "bitnami/kubectl:1.22"
+        },
+        {
+          "value": "vmware/dispatch-python3-base:0.0.2-dev1"
+        }
+      ],
+      "pinned": true,
+      "required": true
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "${parameters.account}",
+      "alias": "runJob",
+      "application": "byos",
+      "cloudProvider": "kubernetes",
+      "credentials": "${parameters.account}",
+      "manifest": {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+          "generateName": "byos-",
+          "labels": {
+            "app": "byos"
+          },
+          "namespace": "${parameters.namespace}"
+        },
+        "spec": {
+          "backoffLimit": 2,
+          "template": {
+            "spec": {
+              "containers": [
+                {
+                  "args": [
+                    "set +x\nfor env in $( echo $envs | tr \",\" \"\\n\" )\ndo\necho export $env >> /tmp/environment\ndone\nfor filename in /secret/* \ndo \nvariable=$(echo $filename | sed 's#/# #g' | awk '{print $2}')\necho setting env $variable for $filename \necho export \"$variable\"=$(cat \"$filename\") >> /tmp/environment\ndone\n#cat /tmp/environment\n#cat /repo/\"$path\"\nsource /tmp/environment\ncd /repo/\n#chmod +x /repo/\"$path\"\n#/repo/\"$path\"\n\npython3 /repo/\"$path\" auditdb $host visibilitydb $host  platformdb $host $port $pguser $restorepgpassword"
+                  ],
+                  "command": [
+                    "/bin/bash",
+                    "+x",
+                    "-c"
+                  ],
+                  "env": [
+                    {
+                      "name": "path",
+                      "value": "${parameters.path}"
+                    },
+                    {
+                      "name": "envs",
+                      "value": "${parameters.envs}"
+                    }
+                  ],
+                  "image": "${parameters.scriptimage}",
+                  "name": "script",
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/repo",
+                      "name": "repo-volume"
+                    },
+                    {
+                      "mountPath": "/secret",
+                      "name": "secret-volume"
+                    }
+                  ]
+                }
+              ],
+              "initContainers": [
+                {
+                  "args": [
+                    "for secret in $(echo $secrets | sed \"s/,/ /g\")\ndo\necho getting $secret\nkubectl -n \"$ns\" get secret \"$secret\" || { echo \"failed getting secret $secret\" ; exit 1; }\nkubectl -n \"$ns\" get secret \"$secret\" -o jsonpath='{.data.*}' | base64 -d > /secret/\"$secret\" \nls -ltr /secret/\"$secret\"\n#cat /secret/\"$secret\"\ndone\n#sleep 30d use for debugging"
+                  ],
+                  "command": [
+                    "/bin/bash",
+                    "+x",
+                    "-c"
+                  ],
+                  "env": [
+                    {
+                      "name": "ns",
+                      "value": "${parameters.namespace}"
+                    },
+                    {
+                      "name": "secrets",
+                      "value": "${parameters.secretname}"
+                    }
+                  ],
+                  "image": "bitnami/kubectl:1.22",
+                  "name": "kube",
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/secret",
+                      "name": "secret-volume"
+                    }
+                  ]
+                },
+                {
+                  "args": [
+                    "\nls -ltr /secret/gittoken || { echo \"failed cloning $url\" ; exit 1; }\ngit clone https://\"$username\":\"$(cat /secret/gittoken)\"@\"$url\" -b \"$branch\" /repo \nls -lrt /repo"
+                  ],
+                  "command": [
+                    "/bin/sh",
+                    "+x",
+                    "-c"
+                  ],
+                  "env": [
+                    {
+                      "name": "username",
+                      "value": "${parameters.username}"
+                    },
+                    {
+                      "name": "url",
+                      "value": "${parameters.url}"
+                    },
+                    {
+                      "name": "branch",
+                      "value": "${parameters.branch}"
+                    }
+                  ],
+                  "image": "bitnami/kubectl:1.22",
+                  "name": "git",
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/secret",
+                      "name": "secret-volume"
+                    },
+                    {
+                      "mountPath": "/repo",
+                      "name": "repo-volume"
+                    }
+                  ]
+                }
+              ],
+              "restartPolicy": "Never",
+              "serviceAccountName": "byos",
+              "volumes": [
+                {
+                  "emptyDir": {},
+                  "name": "secret-volume"
+                },
+                {
+                  "emptyDir": {},
+                  "name": "repo-volume"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "name": "Run Job (Manifest)",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "source": "text",
+      "type": "runJobManifest"
+    }
+  ],
+  "triggers": []
+}
