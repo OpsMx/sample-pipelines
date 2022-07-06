@@ -1,0 +1,115 @@
+{
+  "appConfig": {},
+  "application": "opsmx-gitops",
+  "description": "This pipe is run just once per cluster per namespace. This gives access to service account named byos to get and list secrets in the namespace it is set up in. This services account will be used by  other byos pipes to get github token, postgres-password and other such secrets.",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "gopal.jayanti@opsmx.io",
+  "limitConcurrent": true,
+  "name": "byossetup-k-g-b",
+  "parameterConfig": [
+    {
+      "default": "",
+      "description": "namespace where the secrets exist, where the database the needs backup/restore/upgrade exists.",
+      "hasOptions": false,
+      "label": "",
+      "name": "namespace",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": true
+    },
+    {
+      "default": "",
+      "description": "the kubernetes account where you want to deploy the service account, where the database the needs backup/restore/upgrade exists.",
+      "hasOptions": false,
+      "label": "",
+      "name": "account",
+      "options": [
+        {
+          "value": ""
+        }
+      ],
+      "pinned": false,
+      "required": false
+    }
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "${parameters.account}",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "v1",
+          "kind": "ServiceAccount",
+          "metadata": {
+            "name": "byos"
+          }
+        },
+        {
+          "apiVersion": "rbac.authorization.k8s.io/v1",
+          "kind": "Role",
+          "metadata": {
+            "name": "byos"
+          },
+          "rules": [
+            {
+              "apiGroups": [
+                ""
+              ],
+              "resources": [
+                "secrets"
+              ],
+              "verbs": [
+                "get",
+                "list"
+              ]
+            }
+          ]
+        },
+        {
+          "apiVersion": "rbac.authorization.k8s.io/v1",
+          "kind": "RoleBinding",
+          "metadata": {
+            "labels": {
+              "app": "byos"
+            },
+            "name": "byos"
+          },
+          "roleRef": {
+            "apiGroup": "rbac.authorization.k8s.io",
+            "kind": "Role",
+            "name": "byos"
+          },
+          "subjects": [
+            {
+              "kind": "ServiceAccount",
+              "name": "byos",
+              "namespace": "${parameters.namespace}"
+            }
+          ]
+        }
+      ],
+      "moniker": {
+        "app": "opsmx-gitops"
+      },
+      "name": "Deploy (Manifest)",
+      "namespaceOverride": "${parameters.namespace}",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
+    }
+  ],
+  "triggers": []
+}
