@@ -49,3 +49,10 @@ spin pi save -f pipeline-jsonfile/pubsub.json
 ###
 spin pi save -f pipeline-jsonfile/Usercreation.json
 spin pi save -f pipeline-jsonfile/Userdelete.json
+###
+spin pi save -f pipeline-jsonfile/byos-Postgres-DB-Restore.json
+spin pi save -f pipeline-jsonfile/byos-Postgres-DB-upgrade.json
+spin pi save -f pipeline-jsonfile/byos-Postgress-DB-Backup-PVC.json
+spin pi save -f pipeline-jsonfile/byossetup-k-g-b.json
+spin pi save -f pipeline-jsonfile/MYSQL-Backup.json
+spin pi save -f pipeline-jsonfile/MYSQL-Restore.json
