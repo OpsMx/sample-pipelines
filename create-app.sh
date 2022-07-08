@@ -56,3 +56,10 @@ spin pi save -f pipeline-jsonfile/byos-Postgress-DB-Backup-PVC.json
 spin pi save -f pipeline-jsonfile/byossetup-k-g-b.json
 spin pi save -f pipeline-jsonfile/MYSQL-Backup.json
 spin pi save -f pipeline-jsonfile/MYSQL-Restore.json
+spin pi save -f pipeline-jsonfile/Backup-minio.json
+spin pi save -f pipeline-jsonfile/Redis-Backup.json
+spin pi save -f pipeline-jsonfile/Redis-Restore.json
+spin pi save -f pipeline-jsonfile/Restore-minio.json
+spin pi save -f pipeline-jsonfile/byos-helm-reinstall.json
+spin pi save -f pipeline-jsonfile/byos-helm-setup.json
+spin pi save -f pipeline-jsonfile/byos-helm-upgrade-preview.json

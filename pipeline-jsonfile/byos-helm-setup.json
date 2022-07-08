@@ -1,0 +1,92 @@
+{
+ "appConfig": {},
+ "application": "opsmx-gitops",
+ "id": "6b647c2b-baea-4d3f-b74c-07dcafa538a0",
+ "index": 12,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "byos-helm-setup",
+ "parameterConfig": [
+  {
+   "default": "",
+   "description": "User need to pass the namespace",
+   "hasOptions": false,
+   "label": "",
+   "name": "namespace",
+   "options": [
+    {
+     "value": ""
+    }
+   ],
+   "pinned": true,
+   "required": false
+  },
+  {
+   "default": "",
+   "description": "",
+   "hasOptions": false,
+   "label": "",
+   "name": "account",
+   "options": [
+    {
+     "value": ""
+    }
+   ],
+   "pinned": false,
+   "required": true
+  }
+ ],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "${parameters.account}",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "v1",
+     "kind": "ServiceAccount",
+     "metadata": {
+      "name": "byos"
+     }
+    },
+    {
+     "apiVersion": "rbac.authorization.k8s.io/v1",
+     "kind": "ClusterRoleBinding",
+     "metadata": {
+      "name": "byos"
+     },
+     "roleRef": {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "kind": "ClusterRole",
+      "name": "cluster-admin"
+     },
+     "subjects": [
+      {
+       "kind": "ServiceAccount",
+       "name": "byos",
+       "namespace": "${parameters.namespace}"
+      }
+     ]
+    }
+   ],
+   "moniker": {
+    "app": "opsmx-gitops"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "${parameters.namespace}",
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": []
+}
