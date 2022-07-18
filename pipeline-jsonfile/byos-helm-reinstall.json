@@ -3,7 +3,7 @@
  "application": "opsmx-gitops",
  "description": "go to this url for more details in the Readme",
  "id": "de2f62c4-fae9-4c5e-ac61-dddc261016ca",
- "index": 10,
+ "index": 8,
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
@@ -66,18 +66,12 @@
        "containers": [
         {
          "args": [
-          "set +x\n\nsource /repo/environment\n\nchmod +x /repo/byos-reinstall.sh\n     \nexport version=\"${parameters.version}\"\n\n/repo/$path\n     "
+          "set +x\n\nsource /repo/environment\n\nchmod +x /repo/byos-reinamespacetall.sh\n     \nexport version=\"${parameters.version}\"\n\n/repo/byos-reinamespacetall.sh\n     "
          ],
          "command": [
           "/bin/bash",
           "+x",
           "-c"
-         ],
-         "env": [
-          {
-           "name": "path",
-           "value": "byos-reinstall.sh"
-          }
          ],
          "envFrom": [
           {
@@ -86,7 +80,7 @@
            }
           }
          ],
-         "image": "quay.io/opsmxpublic/helm-bash:v2",
+         "image": "quay.io/opsmxpublic/helm-bash:v4",
          "name": "script",
          "volumeMounts": [
           {
@@ -99,18 +93,12 @@
        "initContainers": [
         {
          "args": [
-          "export ns=\"${parameters.namespace}\"\nexport gittoken=`kubectl -n \"$ns\" get secret gittoken -o yaml | yq e '.data.gittoken' - | base64 -d`\nexport ldappassword=`kubectl -n \"$ns\" get secret ldappassword -o yaml | yq e '.data.ldappassword' - | base64 -d`\nexport dbpassword=`kubectl -n \"$ns\" get secret dbpassword -o yaml | yq e '.data.dbpassword' - | base64 -d`\nexport keystorepassword=`kubectl -n \"$ns\" get secret keystorepassword -o yaml | yq e '.data.keystorepassword' - | base64 -d`\nexport rabbitmqpassword=`kubectl -n \"$ns\" get secret rabbitmqpassword -o yaml | yq e '.data.rabbitmqpassword' - | base64 -d`\nexport saporpassword=`kubectl -n \"$ns\" get secret saporpassword -o yaml | yq e '.data.saporpassword' - | base64 -d`\nexport redispassword=`kubectl -n \"$ns\" get secret redispassword -o yaml | yq e '.data.redispassword' - | base64 -d`\nexport miniopassword=`kubectl -n \"$ns\" get secret miniopassword -o yaml | yq e '.data.miniopassword' - | base64 -d`\nexport ldapconfigpassword=`kubectl -n \"$ns\" get secret ldapconfigpassword -o yaml | yq e '.data.ldapconfigpassword' - | base64 -d`\nexport branch=\"${parameters.version}\"\ngit clone https://\"$username\":\"$gittoken\"@\"$url\" -b \"$branch\" /repo\n\necho \"export ns=$ns\" \u003e /repo/environment\necho \"export gittoken=$gittoken\" \u003e\u003e /repo/environment\necho \"export ldappassword=$ldappassword\" \u003e\u003e  /repo/environment\necho \"export dbpassword=$dbpassword\" \u003e\u003e /repo/environment\necho \"export keystorepassword=$keystorepassword\" \u003e\u003e /repo/environment\necho \"export rabbitmqpassword=$rabbitmqpassword\" \u003e\u003e /repo/environment\necho \"export saporpassword=$saporpassword\" \u003e\u003e /repo/environment\necho \"export redispassword=$redispassword\" \u003e\u003e /repo/environment\necho \"export miniopassword=$miniopassword\" \u003e\u003e  /repo/environment\necho \"export ldapconfigpassword=$ldapconfigpassword\" \u003e\u003e /repo/environment\necho \"export version=${parameters.version}\" \u003e\u003e /repo/environment\nls -ltra /repo"
+          "export namespace=\"${parameters.namespace}\"\nexport gittoken=`kubectl -n \"$namespace\" get secret gittoken -o yaml | yq e '.data.gittoken' - | base64 -d`\nexport ldappassword=`kubectl -n \"$namespace\" get secret ldappassword -o yaml | yq e '.data.ldappassword' - | base64 -d`\nexport dbpassword=`kubectl -n \"$namespace\" get secret dbpassword -o yaml | yq e '.data.dbpassword' - | base64 -d`\nexport keystorepassword=`kubectl -n \"$namespace\" get secret keystorepassword -o yaml | yq e '.data.keystorepassword' - | base64 -d`\nexport rabbitmqpassword=`kubectl -n \"$namespace\" get secret rabbitmqpassword -o yaml | yq e '.data.rabbitmqpassword' - | base64 -d`\nexport saporpassword=`kubectl -n \"$namespace\" get secret saporpassword -o yaml | yq e '.data.saporpassword' - | base64 -d`\nexport redispassword=`kubectl -n \"$namespace\" get secret redispassword -o yaml | yq e '.data.redispassword' - | base64 -d`\nexport miniopassword=`kubectl -n \"$namespace\" get secret miniopassword -o yaml | yq e '.data.miniopassword' - | base64 -d`\nexport ldapconfigpassword=`kubectl -n \"$namespace\" get secret ldapconfigpassword -o yaml | yq e '.data.ldapconfigpassword' - | base64 -d`\nexport branch=\"${parameters.version}\"\ngit clone https://\"$username\":\"$gittoken\"@\"$url\" -b \"$branch\" /repo\n\necho \"export namespace=$namespace\" \u003e /repo/environment\necho \"export gittoken=$gittoken\" \u003e\u003e /repo/environment\necho \"export ldappassword=$ldappassword\" \u003e\u003e  /repo/environment\necho \"export dbpassword=$dbpassword\" \u003e\u003e /repo/environment\necho \"export keystorepassword=$keystorepassword\" \u003e\u003e /repo/environment\necho \"export rabbitmqpassword=$rabbitmqpassword\" \u003e\u003e /repo/environment\necho \"export saporpassword=$saporpassword\" \u003e\u003e /repo/environment\necho \"export redispassword=$redispassword\" \u003e\u003e /repo/environment\necho \"export miniopassword=$miniopassword\" \u003e\u003e  /repo/environment\necho \"export ldapconfigpassword=$ldapconfigpassword\" \u003e\u003e /repo/environment\necho \"export version=${parameters.version}\" \u003e\u003e /repo/environment\nls -ltra /repo"
          ],
          "command": [
           "/bin/bash",
           "+x",
           "-c"
-         ],
-         "env": [
-          {
-           "name": "ns",
-           "value": "${parameters.namespace}"
-          }
          ],
          "envFrom": [
           {
@@ -119,7 +107,7 @@
            }
           }
          ],
-         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:kubectl-spin-cli-git-bash-jq-yq",
+         "image": "quay.io/opsmxpublic/helm-bash:v4-yq-jq",
          "name": "kube",
          "volumeMounts": [
           {
@@ -149,5 +137,5 @@
   }
  ],
  "triggers": [],
- "updateTs": "1657880643000"
+ "updateTs": "1658150342000"
 }

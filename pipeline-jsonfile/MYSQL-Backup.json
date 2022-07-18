@@ -2,7 +2,7 @@
  "appConfig": {},
  "application": "opsmx-gitops",
  "id": "217fe493-b83d-40be-9381-cbbd39ded507",
- "index": 17,
+ "index": 11,
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
@@ -119,7 +119,7 @@
            "value": "${parameters.namespace}"
           }
          ],
-         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:byossbackup_scripts",
+         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:byossbackup_restore_scripts",
          "name": "kube",
          "volumeMounts": [
           {
@@ -213,5 +213,5 @@
   }
  ],
  "triggers": [],
- "updateTs": "1657870715000"
+ "updateTs": "1658150679000"
 }
