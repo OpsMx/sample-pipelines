@@ -1,292 +1,153 @@
 {
-  "appConfig": {},
-  "application": "opsmx-gitops",
-  "description": "go to this url for more details in the Readme",
-  "keepWaitingPipelines": false,
-  "lastModifiedBy": "admin",
-  "limitConcurrent": true,
-  "name": "byos-helm-reinstall",
-  "parameterConfig": [
+ "appConfig": {},
+ "application": "opsmx-gitops",
+ "description": "go to this url for more details in the Readme",
+ "id": "de2f62c4-fae9-4c5e-ac61-dddc261016ca",
+ "index": 10,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "byos-helm-reinstall",
+ "parameterConfig": [
+  {
+   "default": "3.10.2",
+   "description": "git repo branch",
+   "hasOptions": false,
+   "label": "",
+   "name": "version",
+   "options": [
     {
-      "default": "hiu",
-      "description": "kunernetes namespace where the secret is",
-      "hasOptions": false,
-      "label": "",
-      "name": "namespace",
-      "options": [
-        {
-          "value": "hiu"
-        },
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
+     "value": "master"
     },
     {
-      "default": "saitejaopsmx",
-      "description": "git repo user id",
-      "hasOptions": false,
-      "label": "",
-      "name": "username",
-      "options": [
-        {
-          "value": "saitejaopsmx"
-        },
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "github.com/opsmx/helm-install-upgrade",
-      "description": "fir repo url without protocol",
-      "hasOptions": false,
-      "label": "",
-      "name": "url",
-      "options": [
-        {
-          "value": "github.com/opsmx/helm-install-upgrade"
-        },
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "v3.12.5",
-      "description": "git repo branch",
-      "hasOptions": false,
-      "label": "",
-      "name": "branch",
-      "options": [
-        {
-          "value": "master"
-        },
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "byos-reinstall.sh",
-      "description": "path to script",
-      "hasOptions": true,
-      "label": "",
-      "name": "path",
-      "options": [
-        {
-          "value": "byosinstall.sh"
-        },
-        {
-          "value": "byosupgrade.sh"
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "quay.io/opsmxpublic/helm-bash:v2",
-      "description": "image used by script running container",
-      "hasOptions": false,
-      "label": "",
-      "name": "scriptimage",
-      "options": [
-        {
-          "value": "quay.io/opsmxpublic/helm-bash:v2"
-        },
-        {
-          "value": "hashicorp/packer:latest"
-        },
-        {
-          "value": "hashicorp/terraform"
-        },
-        {
-          "value": "mysql:8.0.29"
-        },
-        {
-          "value": "postgres:13-alpine"
-        },
-        {
-          "value": "willhallonline/ansible:latest"
-        },
-        {
-          "value": "bitnami/kubectl:1.22"
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "gittoken",
-      "description": "githubtoken",
-      "hasOptions": false,
-      "label": "",
-      "name": "secretname",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
+     "value": ""
     }
-  ],
-  "spelEvaluator": "v4",
-  "stages": [
+   ],
+   "pinned": true,
+   "required": false
+  },
+  {
+   "default": "byostest",
+   "description": "",
+   "hasOptions": false,
+   "label": "",
+   "name": "namespace",
+   "options": [
     {
-      "account": "hiu",
-      "alias": "runJob",
-      "application": "byos",
-      "cloudProvider": "kubernetes",
-      "credentials": "hiu",
-      "manifest": {
-        "apiVersion": "batch/v1",
-        "kind": "Job",
-        "metadata": {
-          "generateName": "byos-hiu-",
-          "labels": {
-            "app": "byos"
-          },
-          "namespace": "${parameters.namespace}"
-        },
-        "spec": {
-          "backoffLimit": 2,
-          "template": {
-            "spec": {
-              "containers": [
-                {
-                  "args": [
-                    "set +x\nfor env in $( echo $envs | tr \",\" \"\\n\" )\ndo\necho export $env >> /tmp/environment\ndone\nfor filename in /secret/* \ndo \nvariable=$(echo $filename | sed 's#/# #g' | awk '{print $2}')\necho setting env $variable for $filename \necho export \"$variable\"=$(cat \"$filename\") >> /tmp/environment\ndone\n#cat /tmp/environment\n#cat /repo/\"$path\"\nsource /tmp/environment\ncd /repo/\nchmod +x /repo/\"$path\"\n/repo/\"$path\"\n#sleep 30d"
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "path",
-                      "value": "${parameters.path}"
-                    },
-                    {
-                      "name": "namespace",
-                      "value": "${parameters.namespace}"
-                    },
-                    {
-                      "name": "gitusername",
-                      "value": "${parameters.username}"
-                    }
-                  ],
-                  "image": "${parameters.scriptimage}",
-                  "name": "script",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    },
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    }
-                  ]
-                }
-              ],
-              "initContainers": [
-                {
-                  "args": [
-                    "for secret in $(echo $secrets | sed \"s/,/ /g\")\ndo\necho getting $secret\nkubectl -n \"$ns\" get secret \"$secret\" || { echo \"failed getting secret $secret\" ; exit 1; }\nkubectl -n \"$ns\" get secret \"$secret\" -o jsonpath='{.data.*}' | base64 -d > /secret/\"$secret\" \nls -ltr /secret/\"$secret\"\n#cat /secret/\"$secret\"\ndone\n#sleep 30d use for debugging"
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "ns",
-                      "value": "${parameters.namespace}"
-                    },
-                    {
-                      "name": "secrets",
-                      "value": "${parameters.secretname}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "kube",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    }
-                  ]
-                },
-                {
-                  "args": [
-                    "\nls -ltr /secret/gittoken || { echo \"failed cloning $url\" ; exit 1; }\ngit clone https://\"$username\":\"$(cat /secret/gittoken)\"@\"$url\" -b \"$branch\" /repo \nls -lrt /repo"
-                  ],
-                  "command": [
-                    "/bin/sh",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "username",
-                      "value": "${parameters.username}"
-                    },
-                    {
-                      "name": "url",
-                      "value": "${parameters.url}"
-                    },
-                    {
-                      "name": "branch",
-                      "value": "${parameters.branch}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "git",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    },
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    }
-                  ]
-                }
-              ],
-              "restartPolicy": "Never",
-              "serviceAccountName": "byos",
-              "volumes": [
-                {
-                  "emptyDir": {},
-                  "name": "secret-volume"
-                },
-                {
-                  "emptyDir": {},
-                  "name": "repo-volume"
-                }
-              ]
-            }
+     "value": ""
+    }
+   ],
+   "pinned": true,
+   "required": false
+  }
+ ],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "alias": "runJob",
+   "application": "byos",
+   "cloudProvider": "kubernetes",
+   "credentials": "default",
+   "manifest": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+     "generateName": "byos-hiu-",
+     "labels": {
+      "app": "byos"
+     },
+     "namespace": "${parameters.namespace}"
+    },
+    "spec": {
+     "backoffLimit": 2,
+     "template": {
+      "spec": {
+       "containers": [
+        {
+         "args": [
+          "set +x\n\nsource /repo/environment\n\nchmod +x /repo/byos-reinstall.sh\n     \nexport version=\"${parameters.version}\"\n\n/repo/$path\n     "
+         ],
+         "command": [
+          "/bin/bash",
+          "+x",
+          "-c"
+         ],
+         "env": [
+          {
+           "name": "path",
+           "value": "byos-reinstall.sh"
           }
+         ],
+         "envFrom": [
+          {
+           "configMapRef": {
+            "name": "inputcm"
+           }
+          }
+         ],
+         "image": "quay.io/opsmxpublic/helm-bash:v2",
+         "name": "script",
+         "volumeMounts": [
+          {
+           "mountPath": "/repo",
+           "name": "repo-volume"
+          }
+         ]
         }
-      },
-      "name": "Run Job (Manifest)",
-      "refId": "1",
-      "requisiteStageRefIds": [],
-      "source": "text",
-      "type": "runJobManifest"
+       ],
+       "initContainers": [
+        {
+         "args": [
+          "export ns=\"${parameters.namespace}\"\nexport gittoken=`kubectl -n \"$ns\" get secret gittoken -o yaml | yq e '.data.gittoken' - | base64 -d`\nexport ldappassword=`kubectl -n \"$ns\" get secret ldappassword -o yaml | yq e '.data.ldappassword' - | base64 -d`\nexport dbpassword=`kubectl -n \"$ns\" get secret dbpassword -o yaml | yq e '.data.dbpassword' - | base64 -d`\nexport keystorepassword=`kubectl -n \"$ns\" get secret keystorepassword -o yaml | yq e '.data.keystorepassword' - | base64 -d`\nexport rabbitmqpassword=`kubectl -n \"$ns\" get secret rabbitmqpassword -o yaml | yq e '.data.rabbitmqpassword' - | base64 -d`\nexport saporpassword=`kubectl -n \"$ns\" get secret saporpassword -o yaml | yq e '.data.saporpassword' - | base64 -d`\nexport redispassword=`kubectl -n \"$ns\" get secret redispassword -o yaml | yq e '.data.redispassword' - | base64 -d`\nexport miniopassword=`kubectl -n \"$ns\" get secret miniopassword -o yaml | yq e '.data.miniopassword' - | base64 -d`\nexport ldapconfigpassword=`kubectl -n \"$ns\" get secret ldapconfigpassword -o yaml | yq e '.data.ldapconfigpassword' - | base64 -d`\nexport branch=\"${parameters.version}\"\ngit clone https://\"$username\":\"$gittoken\"@\"$url\" -b \"$branch\" /repo\n\necho \"export ns=$ns\" \u003e /repo/environment\necho \"export gittoken=$gittoken\" \u003e\u003e /repo/environment\necho \"export ldappassword=$ldappassword\" \u003e\u003e  /repo/environment\necho \"export dbpassword=$dbpassword\" \u003e\u003e /repo/environment\necho \"export keystorepassword=$keystorepassword\" \u003e\u003e /repo/environment\necho \"export rabbitmqpassword=$rabbitmqpassword\" \u003e\u003e /repo/environment\necho \"export saporpassword=$saporpassword\" \u003e\u003e /repo/environment\necho \"export redispassword=$redispassword\" \u003e\u003e /repo/environment\necho \"export miniopassword=$miniopassword\" \u003e\u003e  /repo/environment\necho \"export ldapconfigpassword=$ldapconfigpassword\" \u003e\u003e /repo/environment\necho \"export version=${parameters.version}\" \u003e\u003e /repo/environment\nls -ltra /repo"
+         ],
+         "command": [
+          "/bin/bash",
+          "+x",
+          "-c"
+         ],
+         "env": [
+          {
+           "name": "ns",
+           "value": "${parameters.namespace}"
+          }
+         ],
+         "envFrom": [
+          {
+           "configMapRef": {
+            "name": "inputcm"
+           }
+          }
+         ],
+         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:kubectl-spin-cli-git-bash-jq-yq",
+         "name": "kube",
+         "volumeMounts": [
+          {
+           "mountPath": "/repo",
+           "name": "repo-volume"
+          }
+         ]
+        }
+       ],
+       "restartPolicy": "Never",
+       "serviceAccountName": "byos",
+       "volumes": [
+        {
+         "emptyDir": {},
+         "name": "repo-volume"
+        }
+       ]
+      }
+     }
     }
-  ],
-  "triggers": []
+   },
+   "name": "Run Job (Manifest)",
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "source": "text",
+   "type": "runJobManifest"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1657880643000"
 }
