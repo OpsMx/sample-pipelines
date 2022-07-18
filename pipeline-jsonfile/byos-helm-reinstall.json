@@ -66,7 +66,7 @@
        "containers": [
         {
          "args": [
-          "set +x\n\nsource /repo/environment\n\nchmod +x /repo/byos-reinamespacetall.sh\n     \nexport version=\"${parameters.version}\"\n\n/repo/byos-reinamespacetall.sh\n     "
+          "set +x\n\nsource /repo/environment\n\nchmod +x /repo/byos-reinstall.sh\n     \nexport version=\"${parameters.version}\"\n\n/repo/byos-reinstall.sh\n     "
          ],
          "command": [
           "/bin/bash",
