@@ -84,12 +84,6 @@
           "+x",
           "-c"
          ],
-         "env": [
-          {
-           "name": "path",
-           "value": "byosupgrade.sh"
-          }
-         ],
          "envFrom": [
           {
            "configMapRef": {
@@ -97,7 +91,7 @@
            }
           }
          ],
-         "image": "quay.io/opsmxpublic/helm-bash:v2",
+         "image": "quay.io/opsmxpublic/helm-bash:v4",
          "name": "script",
          "volumeMounts": [
           {
@@ -110,18 +104,12 @@
        "initContainers": [
         {
          "args": [
-          "\nexport gittoken=$(kubectl -n \"$ns\" get secret gittoken -o yaml | yq e '.data.gittoken' - | base64 -d)\ngit clone https://\"$username\":\"$gittoken\"@\"$url\" -b \"${parameters.srcbranch}\" /repo\n \necho \"export ns=$ns\" \u003e /repo/environment\necho \"export gittoken=$gittoken\" \u003e\u003e /repo/environment\necho \"export version=${parameters.version}\" \u003e\u003e /repo/environment\nls -ltra /repo"
+          "\nexport gittoken=$(kubectl -n \"$namespace\" get secret gittoken -o yaml | yq e '.data.gittoken' - | base64 -d)\ngit clone https://\"$username\":\"$gittoken\"@\"$url\" -b \"${parameters.srcbranch}\" /repo\n \necho \"export namespace=$namespace\" \u003e /repo/environment\necho \"export gittoken=$gittoken\" \u003e\u003e /repo/environment\necho \"export version=${parameters.version}\" \u003e\u003e /repo/environment\nls -ltra /repo"
          ],
          "command": [
           "/bin/bash",
           "+x",
           "-c"
-         ],
-         "env": [
-          {
-           "name": "ns",
-           "value": "${parameters.namespace}"
-          }
          ],
          "envFrom": [
           {
@@ -130,7 +118,7 @@
            }
           }
          ],
-         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:kubectl-spin-cli-git-bash-jq-yq",
+         "image": "quay.io/opsmxpublic/helm-bash:v4-yq-jq",
          "name": "kube",
          "volumeMounts": [
           {
@@ -160,5 +148,5 @@
   }
  ],
  "triggers": [],
- "updateTs": "1657882265000"
+ "updateTs": "1658150445000"
 }

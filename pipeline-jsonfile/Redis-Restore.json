@@ -2,7 +2,7 @@
  "appConfig": {},
  "application": "opsmx-gitops",
  "id": "fb96e416-884d-42c4-a1f6-eb6961585dd9",
- "index": 19,
+ "index": 17,
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
@@ -75,7 +75,7 @@
            "value": "/home/opsmx/scripts/redis-restore.sh"
           }
          ],
-         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:byossbackup_scripts",
+         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:byossbackup_restore_scripts",
          "name": "script",
          "volumeMounts": [
           {
@@ -107,5 +107,5 @@
   }
  ],
  "triggers": [],
- "updateTs": "1657870739000"
+ "updateTs": "1658148929000"
 }
