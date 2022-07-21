@@ -77,7 +77,7 @@
        "containers": [
         {
          "args": [
-          "set +x\n\nsource /repo/environment\n\nrm -rf /repo/environment\n\nchmod +x /repo/byosupgrade.sh\n     \nexport version=\"${parameters.version}\"\n\nls  -ltra /repo/ \n\n/repo/$path"
+          "set +x\n\nsource /repo/environment\n\nrm -rf /repo/environment\n\nchmod +x /repo/byosupgrade.sh\n     \nexport version=\"${parameters.version}\"\n\nls  -ltra /repo/ \n\n/repo/byosupgrade.sh"
          ],
          "command": [
           "/bin/bash",
