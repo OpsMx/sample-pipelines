@@ -62,5 +62,5 @@ spin pi save -f pipeline-jsonfile/Restore-minio.json
 spin pi save -f pipeline-jsonfile/byos-helm-reinstall.json
 spin pi save -f pipeline-jsonfile/byos-helm-setup.json
 spin pi save -f pipeline-jsonfile/byos-helm-upgrade-preview.json
-spin pi save -f pipeline-jsonfile/DB-migration-310to311.json
+spin pi save -f pipeline-jsonfile/DB-migrate
 spin pi save -f pipeline-jsonfile/DB-migration-39to310.json
