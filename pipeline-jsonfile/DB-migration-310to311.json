@@ -1,16 +1,16 @@
 {
   "appConfig": {},
-  "description": "This pipe upgrades the postgres db used by isd. The script that upgrades is in github. Before you run this pipe, make sure the byos-set-up-pipe and byos-postgres-db-backup are run and the secrets for github and postgres are created. Choose the parameters accordingly. more info at https://github.com/OpsMx/byos/blob/main/Postgres/Readme.md",
+  "description": "This pipe upgrades the postgres db used by isd. Before you run this pipe,  ensure that all databases are backed up. There are separate pipelines avaiable for backing up DB to github. However, DB back us best taken by your DB team or cloudprovided DB backup.",
   "keepWaitingPipelines": false,
   "lastModifiedBy": "admin",
   "limitConcurrent": true,
   "parameterConfig": [
     {
-      "default": "3.9",
+      "default": "3.10",
       "description": "",
       "hasOptions": true,
       "label": "",
-      "name": "source",
+      "name": "Current Installed Version",
       "options": [
         {
           "value": "3.10"
@@ -19,7 +19,7 @@
           "value": "3.11"
         },
         {
-          "value": ""
+          "value": "3.9"
         }
       ],
       "pinned": true,
@@ -30,7 +30,7 @@
       "description": "",
       "hasOptions": false,
       "label": "",
-      "name": "namespace",
+      "name": "ISD Namespace",
       "options": [
         {
           "value": ""
@@ -40,7 +40,7 @@
       "required": false
     },
     {
-      "default": "",
+      "default": "admin",
       "description": "Only required for 3.9",
       "hasOptions": false,
       "label": "",
