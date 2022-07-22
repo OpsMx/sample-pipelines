@@ -10,7 +10,7 @@
       "description": "",
       "hasOptions": true,
       "label": "",
-      "name": "Current Installed Version",
+      "name": "currentISDVersion",
       "options": [
         {
           "value": "3.10"
@@ -26,11 +26,11 @@
       "required": false
     },
     {
-      "default": "opsmx-isd",
+      "default": "oes",
       "description": "",
       "hasOptions": false,
       "label": "",
-      "name": "ISD Namespace",
+      "name": "namespace",
       "options": [
         {
           "value": ""
@@ -67,9 +67,9 @@
         "apiVersion": "batch/v1",
         "kind": "Job",
         "metadata": {
-          "generateName": "byos-",
+          "generateName": "isd-db-migrate",
           "labels": {
-            "app": "byos"
+            "app": "isd-install"
           },
           "namespace": "${parameters.namespace}"
         },
@@ -80,15 +80,22 @@
               "containers": [
                 {
                   "args": [
-                    "set +x\nsource /repo/environment\nexport source=${parameters.source}\ncd /repo/oes-data-migration-scripts/\nls -ltra \nif [ \"$source\" == \"3.9\" ]; then\n\n            echo \"upgrading  v3.9 to v3.12\"\n\n            python3 migration_v3.9.x_to_v3.12.x_audit_data.py auditdb $host oesdb $host platformdb $host $port $pguser $pgpassword $saporusername $saporpassword http://oes-audit-service:8097 http://oes-platform-service:8095 ${parameters.adminuser}\n\nelif [ \"$source\" == \"3.10\" ]; then\n\n            echo \"upgrading  v3.10 to v3.11\"\n\n           python3 migration_v3.10.x_to_v3.11.py auditdb $host opsmx $host http://oes-audit-service-v311:8097 $port $pguser $pgpassword\n\nelif [ \"$source\" == \"3.11\" ]; then\n\n             echo \"upgrading  v3.11 to v3.12\"\n   \n               echo \"started migration\"\n    \n             python3 migration_v3.11.x_to_v3.12.py platformdb $host oesdb $host  opsmx $host auditdb $host visibilitydb oes-db $port  $oesgateurl http://sapor-gate:8084 $oesuiurl admin $saporpassword $pguser $pgpassword\n  \n  \nelif [ \"$source\" == \"3.12\" ]; then\necho \"upgrading  v3.12 to v4.0\"\n\nelse\n   \n   echo \"Some went wrong in mapping Migration script\"\n    \nfi"
+                    "set +x\nsource /repo/environment\nexport source=${parameters.currentISDVersion}\ncd /repo/oes-data-migration-scripts/\nls -ltra\nif [ \"$source\" == \"3.9\" ]; then\n\n            echo \"upgrading  v3.9 to v3.12\"\n\n            python3 migration_v3.9.x_to_v3.12.x_audit_data.py auditdb $host oesdb $host platformdb $host $port $pguser $pgpassword $saporusername $saporpassword http://oes-audit-service:8097 http://oes-platform-service:8095 ${parameters.adminuser}\n\nelif [ \"$source\" == \"3.10\" ]; then\n\n            echo \"upgrading  v3.10 to v3.11\"\n\n           python3 migration_v3.10.x_to_v3.11.py auditdb $host opsmx $host http://oes-audit-service-v311:8097 $port $pguser $pgpassword\n\nelif [ \"$source\" == \"3.11\" ]; then\n\n             echo \"upgrading  v3.11 to v3.12\"\n\n               echo \"started migration\"\n\n             python3 migration_v3.11.x_to_v3.12.py platformdb $host oesdb $host  opsmx $host auditdb $host visibilitydb oes-db $port  $oesgateurl http://sapor-gate:8084 $oesuiurl admin $saporpassword $pguser $pgpassword\n\n\nelif [ \"$source\" == \"3.12\" ]; then\necho \"upgrading  v3.12 to v4.0\"\n\nelse\n\n   echo \"Some went wrong in mapping Migration script\"\n\nfi"
                   ],
                   "command": [
                     "/bin/bash",
                     "+x",
                     "-c"
                   ],
+                  "envFrom": [
+                    {
+                      "configMapRef": {
+                        "name": "upgrade-inputcm"
+                      }
+                    }
+                  ],
                   "image": "quay.io/opsmxpublic/ubi8-oes-platform:v3.12.5",
-                  "name": "script",
+                  "name": "exec-db-upgrade",
                   "volumeMounts": [
                     {
                       "mountPath": "/repo",
@@ -107,8 +114,15 @@
                     "+x",
                     "-c"
                   ],
+                  "envFrom": [
+                    {
+                      "configMapRef": {
+                        "name": "upgrade-inputcm"
+                      }
+                    }
+                  ],
                   "image": "quay.io/opsmxpublic/opsmx-custom-binaries:opsmx-isd-scripts",
-                  "name": "kube",
+                  "name": "get-script",
                   "volumeMounts": [
                     {
                       "mountPath": "/repo",
@@ -118,7 +132,7 @@
                 }
               ],
               "restartPolicy": "Never",
-              "serviceAccountName": "byos",
+              "serviceAccountName": "isd-install",
               "volumes": [
                 {
                   "emptyDir": {},
@@ -542,13 +556,13 @@
         "app": "opsmx-gitops"
       },
       "name": "deployNewServices",
-      "namespaceOverride": "opsmx-isd",
+      "namespaceOverride": "${parameters.namespace}",
       "refId": "2",
       "requisiteStageRefIds": [],
       "skipExpressionEvaluation": false,
       "source": "text",
       "stageEnabled": {
-        "expression": "${ parameters.source == \"3.10\" }",
+        "expression": "${ parameters.currentISDVersion == \"3.10\" }",
         "type": "expression"
       },
       "trafficManagement": {
@@ -575,7 +589,7 @@
         "1"
       ],
       "stageEnabled": {
-        "expression": "${ parameters.source == \"3.10\" }",
+        "expression": "${ parameters.currentISDVersion == \"3.10\" }",
         "type": "expression"
       },
       "type": "deleteManifest"
@@ -596,7 +610,7 @@
         "1"
       ],
       "stageEnabled": {
-        "expression": "${ parameters.source == \"3.10\" }",
+        "expression": "${ parameters.currentISDVersion == \"3.10\" }",
         "type": "expression"
       },
       "type": "deleteManifest"
