@@ -7,7 +7,7 @@
  "keepWaitingPipelines": false,
  "lastModifiedBy": "admin",
  "limitConcurrent": true,
- "name": "DB-Migrate",
+ "name": "DB-Migrate310to311",
  "parameterConfig": [
   {
    "default": "3.10",
