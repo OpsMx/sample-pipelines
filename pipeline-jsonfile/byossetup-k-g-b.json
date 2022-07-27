@@ -94,7 +94,7 @@
         }
       ],
       "moniker": {
-        "app": "opsmx-gitops"
+        "app": "${execution.application}"
       },
       "name": "Deploy (Manifest)",
       "namespaceOverride": "${parameters.namespace}",
