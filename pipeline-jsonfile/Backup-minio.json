@@ -1,335 +1,155 @@
 {
-  "appConfig": {},
-  "application": "opsmx-gitops",
-  "keepWaitingPipelines": false,
-  "lastModifiedBy": "admin",
-  "limitConcurrent": true,
-   "name": "Backup-minio",
-  "parameterConfig": [
+ "appConfig": {},
+ "application": "opsmx-gitops",
+ "id": "ab0c6488-0b1e-48d3-84c4-93b7103d2500",
+ "index": 2,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "Backup-minio",
+ "parameterConfig": [
+  {
+   "default": "byostest",
+   "description": "",
+   "hasOptions": false,
+   "label": "",
+   "name": "namespace",
+   "options": [
     {
-      "default": "hiu",
-      "description": "kubernetes namespace where the secret is",
-      "hasOptions": false,
-      "label": "",
-      "name": "namespace",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "gittoken",
-      "description": "kubernetes secrets for the script source, for multiple secrets use comma seperated list",
-      "hasOptions": false,
-      "label": "",
-      "name": "secretname",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "saitejaopsmx",
-      "description": "git repo user id",
-      "hasOptions": false,
-      "label": "",
-      "name": "username",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "github.com/opsmx/byos",
-      "description": "fir repo urk without protocol",
-      "hasOptions": false,
-      "label": "",
-      "name": "url",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "main",
-      "description": "git repo branch",
-      "hasOptions": false,
-      "label": "",
-      "name": "branch",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "byos-minio-backup.sh",
-      "description": "path to script",
-      "hasOptions": false,
-      "label": "",
-      "name": "path",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "quay.io/opsmxpublic/opsmx-custom-binaries:kubectl-spin-cli-git-bash-jq-yq-helm",
-      "description": "image used by script running container",
-      "hasOptions": true,
-      "label": "",
-      "name": "scriptimage",
-      "options": [
-        {
-          "value": "hashicorp/packer:latest"
-        },
-        {
-          "value": "hashicorp/terraform"
-        },
-        {
-          "value": "mysql:8.0.29"
-        },
-        {
-          "value": "postgres:13-alpine"
-        },
-        {
-          "value": "willhallonline/ansible:latest"
-        },
-        {
-          "value": "bitnami/kubectl:1.22"
-        },
-        {
-          "value": "mysql:5.7.37"
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "bkpminio-pg-06-07-2022",
-      "description": "postgres-isdsaas-172-17-16-6-29072022",
-      "hasOptions": false,
-      "label": "",
-      "name": "pvcname",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
+     "value": ""
     }
-  ],
-  "spelEvaluator": "v4",
-  "stages": [
-    {
-      "account": "hiu",
-      "alias": "runJob",
-      "application": "opsmx-gitops",
-      "cloudProvider": "kubernetes",
-      "credentials": "hiu",
-      "manifest": {
-        "apiVersion": "batch/v1",
-        "kind": "Job",
-        "metadata": {
-          "generateName": "byos-",
-          "labels": {
-            "app": "byos"
-          },
-          "namespace": "${parameters.namespace}"
-        },
-        "spec": {
-          "backoffLimit": 2,
-          "template": {
-            "spec": {
-              "containers": [
-                {
-                  "args": [
-                    "set +x\nfor env in $( echo $envs | tr \",\" \"\\n\" )\ndo\necho export $env >> /tmp/environment\ndone\nfor filename in /secret/* \ndo \nvariable=$(echo $filename | sed 's#/# #g' | awk '{print $2}')\necho setting env $variable for $filename \necho export \"$variable\"=$(cat \"$filename\") >> /tmp/environment\ndone\n#cat /tmp/environment\n#cat /repo/\"$path\"\nsource /tmp/environment\ncd /repo/\nchmod +x /repo/\"$path\"\n/repo/\"$path\""
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "path",
-                      "value": "${parameters.path}"
-                    }
-                  ],
-                  "image": "${parameters.scriptimage}",
-                  "name": "script",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    },
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    },
-                    {
-                      "mountPath": "/miniodump",
-                      "name": "miniodump-volume"
-                    }
-                  ]
-                }
-              ],
-              "initContainers": [
-                {
-                  "args": [
-                    "for secret in $(echo $secrets | sed \"s/,/ /g\")\ndo\necho getting $secret\nkubectl -n \"$ns\" get secret \"$secret\" || { echo \"failed getting secret $secret\" ; exit 1; }\nkubectl -n \"$ns\" get secret \"$secret\" -o jsonpath='{.data.*}' | base64 -d > /secret/\"$secret\" \nls -ltr /secret/\"$secret\"\n#cat /secret/\"$secret\"\ndone\n#sleep 30d use for debugging"
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "ns",
-                      "value": "${parameters.namespace}"
-                    },
-                    {
-                      "name": "secrets",
-                      "value": "${parameters.secretname}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "kube",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    }
-                  ]
-                },
-                {
-                  "args": [
-                    "\nls -ltr /secret/gittoken || { echo \"failed cloning $url\" ; exit 1; }\ngit clone https://\"$username\":\"$(cat /secret/gittoken)\"@\"$url\" -b \"$branch\" /repo \nls -lrt /repo"
-                  ],
-                  "command": [
-                    "/bin/sh",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "username",
-                      "value": "${parameters.username}"
-                    },
-                    {
-                      "name": "url",
-                      "value": "${parameters.url}"
-                    },
-                    {
-                      "name": "branch",
-                      "value": "${parameters.branch}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "git",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    },
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    }
-                  ]
-                }
-              ],
-              "restartPolicy": "Never",
-              "serviceAccountName": "byos",
-              "volumes": [
-                {
-                  "emptyDir": {},
-                  "name": "secret-volume"
-                },
-                {
-                  "emptyDir": {},
-                  "name": "repo-volume"
-                },
-                {
-                  "name": "miniodump-volume",
-                  "persistentVolumeClaim": {
-                    "claimName": "${parameters.pvcname}"
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      "name": "Run Job (Manifest)",
-      "refId": "1",
-      "requisiteStageRefIds": [
-        "2"
-      ],
-      "source": "text",
-      "type": "runJobManifest"
+   ],
+   "pinned": true,
+   "required": false
+  }
+ ],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "alias": "runJob",
+   "application": "opsmx-gitops",
+   "cloudProvider": "kubernetes",
+   "credentials": "default",
+   "manifest": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+     "generateName": "byos-",
+     "labels": {
+      "app": "byos"
+     },
+     "namespace": "${parameters.namespace}"
     },
-    {
-      "account": "hiu",
-      "cloudProvider": "kubernetes",
-      "manifests": [
+    "spec": {
+     "backoffLimit": 2,
+     "template": {
+      "spec": {
+       "containers": [
         {
-          "apiVersion": "v1",
-          "kind": "PersistentVolumeClaim",
-          "metadata": {
-            "name": "${parameters.pvcname}",
-            "namespace": "${parameters.namespace}"
-          },
-          "spec": {
-            "accessModes": [
-              "ReadWriteOnce"
-            ],
-            "resources": {
-              "requests": {
-                "storage": "5Gi"
-              }
-            },
-            "volumeMode": "Filesystem"
+         "args": [
+          "set +x\n\nchmod +x $path\n\n\"$path\"\n\nif [ $? -eq 0 ]; then  \n\necho \"Minio backup is sucessfull into the namespace ${parameters.namespace}\"\n\nelse\n\necho \"Minio backup is failed\"\n\nexit 1\n\nfi"
+         ],
+         "command": [
+          "/bin/bash",
+          "+x",
+          "-c"
+         ],
+         "env": [
+          {
+           "name": "path",
+           "value": "/home/opsmx/scripts/minio-backup.sh"
           }
+         ],
+         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:byossbackup_restore_scripts",
+         "name": "script",
+         "volumeMounts": [
+          {
+           "mountPath": "/miniodump",
+           "name": "miniodump-volume"
+          }
+         ]
         }
-      ],
-      "moniker": {
-        "app": "opsmx-gitops"
-      },
-      "name": "Deploy (Manifest)",
-      "namespaceOverride": "testhiu",
-      "refId": "2",
-      "requisiteStageRefIds": [],
-      "skipExpressionEvaluation": false,
-      "source": "text",
-      "trafficManagement": {
-        "enabled": false,
-        "options": {
-          "enableTraffic": false
+       ],
+       "restartPolicy": "Never",
+       "serviceAccountName": "byos",
+       "volumes": [
+        {
+         "name": "miniodump-volume",
+         "persistentVolumeClaim": {
+          "claimName": "pvc-${pvcname}-minio"
+         }
         }
-      },
-      "type": "deployManifest"
+       ]
+      }
+     }
     }
-  ],
-  "triggers": []
+   },
+   "name": "Run Job (Manifest)",
+   "refId": "1",
+   "requisiteStageRefIds": [
+    "2"
+   ],
+   "source": "text",
+   "type": "runJobManifest"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "v1",
+     "kind": "PersistentVolumeClaim",
+     "metadata": {
+      "name": "pvc-${pvcname}-minio",
+      "namespace": "${parameters.namespace}"
+     },
+     "spec": {
+      "accessModes": [
+       "ReadWriteOnce"
+      ],
+      "resources": {
+       "requests": {
+        "storage": "5Gi"
+       }
+      },
+      "volumeMode": "Filesystem"
+     }
+    }
+   ],
+   "moniker": {
+    "app": "opsmx-gitops"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "failOnFailedExpressions": true,
+   "name": "Evaluate Variables",
+   "refId": "3",
+   "requisiteStageRefIds": [],
+   "type": "evaluateVariables",
+   "variables": [
+    {
+     "key": "pvcname",
+     "value": "${new java.util.Date()}"
+    }
+   ]
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1658150605000"
 }

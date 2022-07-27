@@ -1,354 +1,217 @@
 {
-  "appConfig": {},
-  "application": "opsmx-gitops",
-  "keepWaitingPipelines": false,
-  "lastModifiedBy": "admin",
-  "limitConcurrent": true,
-  "name": "MYSQL-Backup",
-  "parameterConfig": [
+ "appConfig": {},
+ "application": "opsmx-gitops",
+ "id": "217fe493-b83d-40be-9381-cbbd39ded507",
+ "index": 11,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "MYSQL-Backup",
+ "parameterConfig": [
+  {
+   "default": "isd4-0",
+   "description": "kunernetes namespace where the secret is",
+   "hasOptions": false,
+   "label": "",
+   "name": "namespace",
+   "options": [
     {
-      "default": "isd4-0",
-      "description": "kunernetes namespace where the secret is",
-      "hasOptions": false,
-      "label": "",
-      "name": "namespace",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "gittoken,mysqlpassword",
-      "description": "kubernetes secrets for the script source, for multiple secrets use comma seperated list",
-      "hasOptions": false,
-      "label": "",
-      "name": "secretname",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "yugaa22",
-      "description": "git repo user id",
-      "hasOptions": false,
-      "label": "",
-      "name": "username",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "github.com/opsmx/byos",
-      "description": "fir repo urk without protocol",
-      "hasOptions": false,
-      "label": "",
-      "name": "url",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "main",
-      "description": "git repo branch",
-      "hasOptions": false,
-      "label": "",
-      "name": "branch",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "byos-mysql-backup.sh",
-      "description": "path to script",
-      "hasOptions": false,
-      "label": "",
-      "name": "path",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "mysql:5.7.37",
-      "description": "image used by script running container",
-      "hasOptions": true,
-      "label": "",
-      "name": "scriptimage",
-      "options": [
-        {
-          "value": "hashicorp/packer:latest"
-        },
-        {
-          "value": "hashicorp/terraform"
-        },
-        {
-          "value": "mysql:8.0.29"
-        },
-        {
-          "value": "postgres:13-alpine"
-        },
-        {
-          "value": "willhallonline/ansible:latest"
-        },
-        {
-          "value": "bitnami/kubectl:1.22"
-        },
-        {
-          "value": "mysql:5.7.37"
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "host=34.105.36.115,port=3306,mysqluser=root",
-      "description": "environment variables, for multiple key value pairs use comma seperated list",
-      "hasOptions": false,
-      "label": "",
-      "name": "envs",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
-    },
-    {
-      "default": "mysq-isdsaas-172-17-16-4-01072022",
-      "description": "postgres-isdsaas-172-17-16-6-29072022",
-      "hasOptions": false,
-      "label": "",
-      "name": "pvcname",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": false
+     "value": ""
     }
-  ],
-  "spelEvaluator": "v4",
-  "stages": [
+   ],
+   "pinned": false,
+   "required": false
+  },
+  {
+   "default": "34.105.36.115",
+   "description": "environment variables, for multiple key value pairs use comma seperated list",
+   "hasOptions": false,
+   "label": "",
+   "name": "host",
+   "options": [
     {
-      "account": "default",
-      "alias": "runJob",
-      "application": "userdetails",
-      "cloudProvider": "kubernetes",
-      "credentials": "default",
-      "manifest": {
-        "apiVersion": "batch/v1",
-        "kind": "Job",
-        "metadata": {
-          "generateName": "byos-",
-          "labels": {
-            "app": "byos"
-          },
-          "namespace": "${parameters.namespace}"
-        },
-        "spec": {
-          "backoffLimit": 2,
-          "template": {
-            "spec": {
-              "containers": [
-                {
-                  "args": [
-                    "set +x\nfor env in $( echo $envs | tr \",\" \"\\n\" )\ndo\necho export $env >> /tmp/environment\ndone\nfor filename in /secret/* \ndo \nvariable=$(echo $filename | sed 's#/# #g' | awk '{print $2}')\necho setting env $variable for $filename \necho export \"$variable\"=$(cat \"$filename\") >> /tmp/environment\ndone\n#cat /tmp/environment\n#cat /repo/\"$path\"\nsource /tmp/environment\ncd /repo/\nchmod +x /repo/\"$path\"\n/repo/\"$path\""
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "path",
-                      "value": "${parameters.path}"
-                    },
-                    {
-                      "name": "envs",
-                      "value": "${parameters.envs}"
-                    }
-                  ],
-                  "image": "${parameters.scriptimage}",
-                  "name": "script",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    },
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    },
-                    {
-                      "mountPath": "/mysqldump",
-                      "name": "mysqldump-volume"
-                    }
-                  ]
-                }
-              ],
-              "initContainers": [
-                {
-                  "args": [
-                    "for secret in $(echo $secrets | sed \"s/,/ /g\")\ndo\necho getting $secret\nkubectl -n \"$ns\" get secret \"$secret\" || { echo \"failed getting secret $secret\" ; exit 1; }\nkubectl -n \"$ns\" get secret \"$secret\" -o jsonpath='{.data.*}' | base64 -d > /secret/\"$secret\" \nls -ltr /secret/\"$secret\"\n#cat /secret/\"$secret\"\ndone\n#sleep 30d use for debugging"
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "ns",
-                      "value": "${parameters.namespace}"
-                    },
-                    {
-                      "name": "secrets",
-                      "value": "${parameters.secretname}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "kube",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    }
-                  ]
-                },
-                {
-                  "args": [
-                    "\nls -ltr /secret/gittoken || { echo \"failed cloning $url\" ; exit 1; }\ngit clone https://\"$username\":\"$(cat /secret/gittoken)\"@\"$url\" -b \"$branch\" /repo \nls -lrt /repo"
-                  ],
-                  "command": [
-                    "/bin/sh",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "username",
-                      "value": "${parameters.username}"
-                    },
-                    {
-                      "name": "url",
-                      "value": "${parameters.url}"
-                    },
-                    {
-                      "name": "branch",
-                      "value": "${parameters.branch}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "git",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    },
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    }
-                  ]
-                }
-              ],
-              "restartPolicy": "Never",
-              "serviceAccountName": "default",
-              "volumes": [
-                {
-                  "emptyDir": {},
-                  "name": "secret-volume"
-                },
-                {
-                  "emptyDir": {},
-                  "name": "repo-volume"
-                },
-                {
-                  "name": "mysqldump-volume",
-                  "persistentVolumeClaim": {
-                    "claimName": "${parameters.pvcname}"
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      "name": "Run Job (Manifest)",
-      "refId": "1",
-      "requisiteStageRefIds": [
-        "2"
-      ],
-      "source": "text",
-      "type": "runJobManifest"
-    },
-    {
-      "account": "default",
-      "cloudProvider": "kubernetes",
-      "manifests": [
-        {
-          "apiVersion": "v1",
-          "kind": "PersistentVolumeClaim",
-          "metadata": {
-            "name": "${parameters.pvcname}",
-            "namespace": "${parameters.namespace}"
-          },
-          "spec": {
-            "accessModes": [
-              "ReadWriteOnce"
-            ],
-            "resources": {
-              "requests": {
-                "storage": "15Gi"
-              }
-            },
-            "volumeMode": "Filesystem"
-          }
-        }
-      ],
-      "moniker": {
-        "app": "userdetails"
-      },
-      "name": "Deploy (Manifest)",
-      "namespaceOverride": "",
-      "refId": "2",
-      "requisiteStageRefIds": [],
-      "skipExpressionEvaluation": false,
-      "source": "text",
-      "trafficManagement": {
-        "enabled": false,
-        "options": {
-          "enableTraffic": false
-        }
-      },
-      "type": "deployManifest"
+     "value": ""
     }
-  ],
-  "triggers": [],
-  "updateTs": "1656921392000"
+   ],
+   "pinned": false,
+   "required": false
+  },
+  {
+   "default": "",
+   "description": "",
+   "hasOptions": false,
+   "label": "",
+   "name": "mysqluser",
+   "options": [
+    {
+     "value": ""
+    }
+   ],
+   "pinned": false,
+   "required": false
+  }
+ ],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "alias": "runJob",
+   "application": "userdetails",
+   "cloudProvider": "kubernetes",
+   "credentials": "default",
+   "manifest": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+     "generateName": "byos-",
+     "labels": {
+      "app": "byos"
+     },
+     "namespace": "${parameters.namespace}"
+    },
+    "spec": {
+     "backoffLimit": 2,
+     "template": {
+      "spec": {
+       "containers": [
+        {
+         "args": [
+          "set +x\n\nsource /repo/secrets\ncd /repo/\nchmod +x /repo/\"$path\"\n\n#/repo/\"$path\""
+         ],
+         "command": [
+          "/bin/bash",
+          "+x",
+          "-c"
+         ],
+         "env": [
+          {
+           "name": "path",
+           "value": "mysql-backup.sh"
+          }
+         ],
+         "image": "mysql:5.7.37",
+         "name": "script",
+         "volumeMounts": [
+          {
+           "mountPath": "/repo",
+           "name": "repo-volume"
+          },
+          {
+           "mountPath": "/mysqldump",
+           "name": "mysqldump-volume"
+          }
+         ]
+        }
+       ],
+       "initContainers": [
+        {
+         "args": [
+          "\nexport mysqlpassword=$(kubectl -n \"$ns\" get secret mysqlpassword -o yaml|  yq e '.data.mysqlpassword' - | base64 -d)\necho \"export ns=$ns\" \u003e\u003e /repo/secrets\necho \"export host=${parameters.host}\" \u003e\u003e  /repo/secrets\necho \"export mysqluser=${parameters.mysqluser}\" \u003e\u003e /repo/secrets\necho \"export mysqlpassword=$mysqlpassword\" \u003e\u003e /repo/secrets\nls -ltra /home/opsmx/scripts\ncp /home/opsmx/scripts/*.sh /repo/"
+         ],
+         "command": [
+          "/bin/bash",
+          "+x",
+          "-c"
+         ],
+         "env": [
+          {
+           "name": "ns",
+           "value": "${parameters.namespace}"
+          }
+         ],
+         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:byossbackup_restore_scripts",
+         "name": "kube",
+         "volumeMounts": [
+          {
+           "mountPath": "/repo",
+           "name": "repo-volume"
+          }
+         ]
+        }
+       ],
+       "restartPolicy": "Never",
+       "serviceAccountName": "default",
+       "volumes": [
+        {
+         "emptyDir": {},
+         "name": "repo-volume"
+        },
+        {
+         "name": "mysqldump-volume",
+         "persistentVolumeClaim": {
+          "claimName": "pvc-${pvcname}-mysql"
+         }
+        }
+       ]
+      }
+     }
+    }
+   },
+   "name": "Run Job (Manifest)",
+   "refId": "1",
+   "requisiteStageRefIds": [
+    "2"
+   ],
+   "source": "text",
+   "type": "runJobManifest"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "v1",
+     "kind": "PersistentVolumeClaim",
+     "metadata": {
+      "name": "pvc-${pvcname}-mysql",
+      "namespace": "${parameters.namespace}"
+     },
+     "spec": {
+      "accessModes": [
+       "ReadWriteOnce"
+      ],
+      "resources": {
+       "requests": {
+        "storage": "5Gi"
+       }
+      },
+      "volumeMode": "Filesystem"
+     }
+    }
+   ],
+   "moniker": {
+    "app": "opsmx-gitops"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "failOnFailedExpressions": true,
+   "name": "Evaluate Variables",
+   "refId": "3",
+   "requisiteStageRefIds": [],
+   "type": "evaluateVariables",
+   "variables": [
+    {
+     "key": "pvcname",
+     "value": "${new java.util.Date()}"
+    }
+   ]
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1658150679000"
 }

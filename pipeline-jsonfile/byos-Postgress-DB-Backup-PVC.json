@@ -1,365 +1,184 @@
 {
-  "appConfig": {},
-  "application": "opsmx-gitops",
-  "description": "This pipe backs up  the postgres db used by isd. The script that backs up is in github. Before you run this pipe, make sure the byos-set-up-pipe is run and the secrets for github and postgres are created. Choose the parameters accordingly. more info at https://github.com/OpsMx/byos/blob/main/Postgres/Readme.md",
-  "keepWaitingPipelines": false,
-  "lastModifiedBy": "saiprasad.thukuntla@opsmx.io",
-  "limitConcurrent": true,
-  "name": "byos-Postgress-DB-Backup-PVC",
-  "parameterConfig": [
+ "appConfig": {},
+ "application": "opsmx-gitops",
+ "description": "This pipe backs up  the postgres db used by isd. The script that backs up is in github. Before you run this pipe, make sure the byos-set-up-pipe is run and the secrets for github and postgres are created. Choose the parameters accordingly. more info at https://github.com/OpsMx/byos/blob/main/Postgres/Readme.md",
+ "id": "18a35f3e-8059-4915-93f8-5a468cd6b522",
+ "index": 4,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "byos-Postgress-DB-Backup-PVC",
+ "parameterConfig": [
+  {
+   "default": "byostest",
+   "description": "",
+   "hasOptions": false,
+   "label": "",
+   "name": "namespace",
+   "options": [
     {
-      "default": "example: oes-db20220701-0",
-      "description": "changeforeachrun, use a pvc not used before,so that it is not overwritten, append with -0 so in case of disaster it can be mounted in oes-db by changing the template name in the statefulset",
-      "hasOptions": false,
-      "label": "",
-      "name": "pvcname",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "gittoken,pgpassword",
-      "description": "onetimesetup, kubernetes secrets for gittoken and postgres db password, must be created manually before pipe is run",
-      "hasOptions": false,
-      "label": "",
-      "name": "secretname",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "",
-      "description": "onetimesetup, git repo user id",
-      "hasOptions": false,
-      "label": "",
-      "name": "username",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "github.com/opsmx/byos",
-      "description": "onetimesetup, github repo url without protocol, where the backup script exists",
-      "hasOptions": false,
-      "label": "",
-      "name": "url",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "main",
-      "description": "onetimesetup, git repo branch",
-      "hasOptions": false,
-      "label": "",
-      "name": "branch",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "byos-postgres-backup.sh",
-      "description": "onetimesetup, path to script",
-      "hasOptions": false,
-      "label": "",
-      "name": "path",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "postgres:13-alpine",
-      "description": "onetimesetup, image used by script running container",
-      "hasOptions": false,
-      "label": "",
-      "name": "scriptimage",
-      "options": [
-        {
-          "value": "hashicorp/packer:latest"
-        },
-        {
-          "value": "hashicorp/terraform"
-        },
-        {
-          "value": "mysql:8.0.29"
-        },
-        {
-          "value": "postgres:13-alpine"
-        },
-        {
-          "value": "willhallonline/ansible:latest"
-        },
-        {
-          "value": "bitnami/kubectl:1.22"
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "host=oes-db,port=5432,pguser=postgres",
-      "description": "onetimesetup, environment variables,  if the db is in different namespace use \"oes-db.namespace\" as host, if external db replace oes-db with the url/ipadress, change the pguser to the externaldb username",
-      "hasOptions": false,
-      "label": "",
-      "name": "envs",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "",
-      "description": "onetimesetup, the namespace here the oes-dbi and secrets are",
-      "hasOptions": false,
-      "label": "",
-      "name": "namespace",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
-    },
-    {
-      "default": "",
-      "description": "Kubernetes account where isd is installed, if upfdating external db, can be any valid account",
-      "hasOptions": false,
-      "label": "",
-      "name": "account",
-      "options": [
-        {
-          "value": ""
-        }
-      ],
-      "pinned": false,
-      "required": true
+     "value": ""
     }
-  ],
-  "spelEvaluator": "v4",
-  "stages": [
-    {
-      "account": "default",
-      "alias": "runJob",
-      "application": "byos",
-      "cloudProvider": "kubernetes",
-      "credentials": "default",
-      "manifest": {
-        "apiVersion": "batch/v1",
-        "kind": "Job",
-        "metadata": {
-          "generateName": "byos-",
-          "labels": {
-            "app": "byos"
-          },
-          "namespace": "opsmx-isd"
-        },
-        "spec": {
-          "backoffLimit": 2,
-          "template": {
-            "spec": {
-              "containers": [
-                {
-                  "args": [
-                    "set +x\nfor env in $( echo $envs | tr \",\" \"\\n\" )\ndo\necho export $env >> /tmp/environment\ndone\nfor filename in /secret/* \ndo \nvariable=$(echo $filename | sed 's#/# #g' | awk '{print $2}')\necho setting env $variable for $filename \necho export \"$variable\"=$(cat \"$filename\") >> /tmp/environment\ndone\n#cat /tmp/environment\n#cat /repo/\"$path\"\nsource /tmp/environment\ncd /repo/\nchmod +x /repo/\"$path\"\n/repo/\"$path\""
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "path",
-                      "value": "${parameters.path}"
-                    },
-                    {
-                      "name": "envs",
-                      "value": "${parameters.envs}"
-                    }
-                  ],
-                  "image": "${parameters.scriptimage}",
-                  "name": "script",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    },
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    },
-                    {
-                      "mountPath": "/pgdump",
-                      "name": "pgdump-volume"
-                    }
-                  ]
-                }
-              ],
-              "initContainers": [
-                {
-                  "args": [
-                    "for secret in $(echo $secrets | sed \"s/,/ /g\")\ndo\necho getting $secret\nkubectl -n \"$ns\" get secret \"$secret\" || { echo \"failed getting secret $secret\" ; exit 1; }\nkubectl -n \"$ns\" get secret \"$secret\" -o jsonpath='{.data.*}' | base64 -d > /secret/\"$secret\" \nls -ltr /secret/\"$secret\"\n#cat /secret/\"$secret\"\ndone\n#sleep 30d use for debugging"
-                  ],
-                  "command": [
-                    "/bin/bash",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "ns",
-                      "value": "${parameters.namespace}"
-                    },
-                    {
-                      "name": "secrets",
-                      "value": "${parameters.secretname}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "kube",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    }
-                  ]
-                },
-                {
-                  "args": [
-                    "\nls -ltr /secret/gittoken || { echo \"failed cloning $url\" ; exit 1; }\ngit clone https://\"$username\":\"$(cat /secret/gittoken)\"@\"$url\" -b \"$branch\" /repo \nls -lrt /repo"
-                  ],
-                  "command": [
-                    "/bin/sh",
-                    "+x",
-                    "-c"
-                  ],
-                  "env": [
-                    {
-                      "name": "username",
-                      "value": "${parameters.username}"
-                    },
-                    {
-                      "name": "url",
-                      "value": "${parameters.url}"
-                    },
-                    {
-                      "name": "branch",
-                      "value": "${parameters.branch}"
-                    }
-                  ],
-                  "image": "bitnami/kubectl:1.22",
-                  "name": "git",
-                  "volumeMounts": [
-                    {
-                      "mountPath": "/secret",
-                      "name": "secret-volume"
-                    },
-                    {
-                      "mountPath": "/repo",
-                      "name": "repo-volume"
-                    }
-                  ]
-                }
-              ],
-              "restartPolicy": "Never",
-              "serviceAccountName": "byos",
-              "volumes": [
-                {
-                  "emptyDir": {},
-                  "name": "secret-volume"
-                },
-                {
-                  "emptyDir": {},
-                  "name": "repo-volume"
-                },
-                {
-                  "name": "pgdump-volume",
-                  "persistentVolumeClaim": {
-                    "claimName": "${parameters.pvcname}"
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      "name": "Run Job (Manifest)",
-      "refId": "1",
-      "requisiteStageRefIds": [
-        "2"
-      ],
-      "source": "text",
-      "type": "runJobManifest"
+   ],
+   "pinned": true,
+   "required": false
+  }
+ ],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "alias": "runJob",
+   "application": "byos",
+   "cloudProvider": "kubernetes",
+   "credentials": "default",
+   "manifest": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+     "generateName": "byos-",
+     "labels": {
+      "app": "byos"
+     },
+     "namespace": "${parameters.namespace}"
     },
-    {
-      "account": "opsmx-isd",
-      "cloudProvider": "kubernetes",
-      "manifests": [
+    "spec": {
+     "backoffLimit": 2,
+     "template": {
+      "spec": {
+       "containers": [
         {
-          "apiVersion": "v1",
-          "kind": "PersistentVolumeClaim",
-          "metadata": {
-            "name": "${parameters.pvcname}",
-            "namespace": "${parameters.namespace}"
-          },
-          "spec": {
-            "accessModes": [
-              "ReadWriteOnce"
-            ],
-            "resources": {
-              "requests": {
-                "storage": "5Gi"
-              }
-            },
-            "volumeMode": "Filesystem"
+         "args": [
+          "set +x\n\nsource /repo/secrets\n\n#bash \"$path\"\n\n\"$path\"\n\nif [ $? -eq 0 ]; then  \n\necho \"Postgress backup is sucessfull into the namespace ${parameters.namespace}\"\n\nelse\n\necho \"Postgress backup is failed\"\n\nexit 1\n\nfi"
+         ],
+         "command": [
+          "/bin/bash",
+          "+x",
+          "-c"
+         ],
+         "env": [
+          {
+           "name": "path",
+           "value": "/repo/postgres-backup.sh"
           }
+         ],
+         "image": "quay.io/opsmxpublic/postgres:postgres13.7",
+         "name": "script",
+         "volumeMounts": [
+          {
+           "mountPath": "/repo",
+           "name": "repo-volume"
+          },
+          {
+           "mountPath": "/pgdump",
+           "name": "pgdump-volume"
+          }
+         ]
         }
-      ],
-      "moniker": {
-        "app": "byos"
-      },
-      "name": "Deploy (Manifest)",
-      "namespaceOverride": "",
-      "refId": "2",
-      "requisiteStageRefIds": [],
-      "skipExpressionEvaluation": false,
-      "source": "text",
-      "trafficManagement": {
-        "enabled": false,
-        "options": {
-          "enableTraffic": false
+       ],
+       "initContainers": [
+        {
+         "args": [
+          "\nexport ns=\"${parameters.namespace}\"\n\nexport dbpassword=`kubectl -n \"$ns\" get secret dbpassword -o yaml | yq e '.data.dbpassword' - | base64 -d`\necho \"export gituser=$gituser\" \u003e\u003e /repo/secrets\necho \"export ns=$ns\" \u003e\u003e /repo/secrets\necho \"export dbpassword=$dbpassword\" \u003e\u003e /repo/secrets\nexport host=`kubectl -n \"$ns\" get secret oes-platform-config -o yaml | yq e '.data.\"platform-local.yml\"' - | base64 -d  | yq e '.spring.datasource.url' - | grep -oP '(?\u003c=//).*(?=:)'`\nexport port=`kubectl -n \"$ns\" get secret oes-platform-config -o yaml | yq e '.data.\"platform-local.yml\"' - | base64 -d  | yq e '.spring.datasource.url' - | grep -Eo '[0-9]{1,4}'`\nexport username=`kubectl -n \"$ns\" get secret oes-platform-config -o yaml | yq e '.data.\"platform-local.yml\"' - | base64 -d  | yq e '.spring.datasource.username' -`\nexport password=`kubectl -n \"$ns\" get secret oes-platform-config -o yaml | yq e '.data.\"platform-local.yml\"' - | base64 -d  | yq e '.spring.datasource.password' -`\necho \"export host=$host\" \u003e\u003e  /repo/secrets\necho \"export port=$port\" \u003e\u003e /repo/secrets\necho \"export pguser=$username\" \u003e\u003e /repo/secrets\necho \"export dbpassword=$dbpassword\" \u003e\u003e /repo/secrets\nls -ltra /home/opsmx/scripts\ncp /home/opsmx/scripts/*.sh /repo/"
+         ],
+         "command": [
+          "/bin/bash",
+          "+x",
+          "-c"
+         ],
+         "image": "quay.io/opsmxpublic/opsmx-custom-binaries:byossbackup_restore_scripts",
+         "name": "kube",
+         "volumeMounts": [
+          {
+           "mountPath": "/repo",
+           "name": "repo-volume"
+          }
+         ]
         }
-      },
-      "type": "deployManifest"
+       ],
+       "restartPolicy": "Never",
+       "serviceAccountName": "byos",
+       "volumes": [
+        {
+         "emptyDir": {},
+         "name": "repo-volume"
+        },
+        {
+         "name": "pgdump-volume",
+         "persistentVolumeClaim": {
+          "claimName": "pvc-${pvcname}-postgres"
+         }
+        }
+       ]
+      }
+     }
     }
-  ],
-  "triggers": []
+   },
+   "name": "Run Job (Manifest)",
+   "refId": "1",
+   "requisiteStageRefIds": [
+    "2"
+   ],
+   "source": "text",
+   "type": "runJobManifest"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "v1",
+     "kind": "PersistentVolumeClaim",
+     "metadata": {
+      "name": "pvc-${pvcname}-postgres",
+      "namespace": "${parameters.namespace}"
+     },
+     "spec": {
+      "accessModes": [
+       "ReadWriteOnce"
+      ],
+      "resources": {
+       "requests": {
+        "storage": "5Gi"
+       }
+      },
+      "volumeMode": "Filesystem"
+     }
+    }
+   ],
+   "moniker": {
+    "app": "byos"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false
+    }
+   },
+   "type": "deployManifest"
+  },
+  {
+   "failOnFailedExpressions": true,
+   "name": "Evaluate Variables",
+   "refId": "3",
+   "requisiteStageRefIds": [],
+   "type": "evaluateVariables",
+   "variables": [
+    {
+     "key": "pvcname",
+     "value": "${new java.util.Date()}"
+    }
+   ]
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1657880599000"
 }
