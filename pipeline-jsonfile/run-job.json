@@ -1,349 +1,347 @@
 {
- "appConfig": {},
- "application": "sampleapp",
- "description": "Sample pipeline to demonstrate Run-Job stage that creates an artifact. The config stage shows how different parameters can be used for executing different content in the same pipeline. ",
- "disabled": false,
- "id": "cff52f1f-b626-43c5-853a-0c2547175c3d",
- "index": 0,
- "keepWaitingPipelines": false,
- "lastModifiedBy": "admin",
- "limitConcurrent": true,
- "name": "run-job-create-artifact",
- "parameterConfig": [
-  {
-   "default": "github.com/ksrinimba/sample-pipeline-manifest.git",
-   "description": "repo url do not use http ot https:// in the beginning",
-   "hasOptions": true,
-   "label": "",
-   "name": "repo",
-   "options": [
+  "appConfig": {},
+  "application": "sampleapp",
+  "name": "run-job-create-artifact",
+  "description": "Sample pipeline to demonstrate Run-Job stage that creates an artifact. The config stage shows how different parameters can be used for executing different content in the same pipeline. ",
+  "disabled": false,
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "parameterConfig": [
     {
-     "value": "github.com/ksrinimba/sample-pipeline-manifest.git"
-    },
-    {
-     "value": "github.com/OpsMx/enterprise-spinnaker.git"
-    }
-   ],
-   "pinned": true,
-   "required": true
-  },
-  {
-   "default": "main",
-   "description": "the branch , commit sha or tag to checkout",
-   "hasOptions": true,
-   "label": "",
-   "name": "branch",
-   "options": [
-    {
-     "value": "main"
-    },
-    {
-     "value": "master"
-    }
-   ],
-   "pinned": true,
-   "required": true
-  },
-  {
-   "default": "false",
-   "description": "clean t he workspace to start a fresh build",
-   "hasOptions": true,
-   "label": "",
-   "name": "clean",
-   "options": [
-    {
-     "value": "true"
-    },
-    {
-     "value": "fasle"
-    }
-   ],
-   "pinned": false,
-   "required": false
-  },
-  {
-   "default": "quay.io/opsmxpublic/aws-helm:4",
-   "description": "choose docker image with maven and jdk versions https://hub.docker.com/_/maven has more options",
-   "hasOptions": true,
-   "label": "",
-   "name": "image",
-   "options": [
-    {
-     "value": "maven:3.6.3-jdk-8"
-    },
-    {
-     "value": "maven:3-jdk-11"
-    },
-    {
-     "value": "alpine/helm"
-    }
-   ],
-   "pinned": false,
-   "required": false
-  }
- ],
- "spelEvaluator": "v4",
- "stages": [
-  {
-   "account": "default",
-   "cloudProvider": "kubernetes",
-   "comments": "This is a script that is executed in the next stage.",
-   "manifests": [
-    {
-     "apiVersion": "v1",
-     "data": {
-      "run.sh": "#!/bin/bash set -x\ncd /usr/src\ngit --version\n\nbasedir=$(echo $gitrepo | sed 's/\\// /g' | awk '{ print $NF}' | sed 's/.git//')\necho\nif [ \"$cleanworkspace\" = true ] ; then\necho \"deleting workspace $basedir\"\nrm -rf $basedir\nfi\n####################\necho checking if $basedir exists\necho\nif [ -d \"$basedir\" ]; then\necho updating \"$basedir\" with \"$gitbranch\" from \"https://\"$gitrepo\"\"\ncd $basedir\ngit checkout $gitbranch \ngit pull\nelse\necho cloning into \"$basedir\" with with \"$gitbranch\" from \"https://\"$gitrepo\"\"\ngit clone  \"https://\"$gitusername\":\"$gitpassword\"@\"$gitrepo\"\"\ncd $basedir\necho \"-----------------------------------------------------------------\"\ngit log -1 \necho \"-----------------------------------------------------------------\"\ngit checkout $gitbranch\nfi\n#########################\necho the current git status is\ngit status\necho\necho current revision of workspace is \ngit rev-parse HEAD\necho\nls -ltra\npwd \ncd charts \npwd \ntar czvf hello-world.tgz oes\nbase64Helm=`cat hello-world.tgz | base64 -w0` \npart1='{\"artifacts\":[{\"type\":\"embedded/base64\",\"reference\":\"'\npart2='\" ,\"name\":\"base64Helm\"}]}'\necho SPINNAKER_CONFIG_JSON=\"$part1$base64Helm$part2\"\n\n \n \n"
-     },
-     "kind": "ConfigMap",
-     "metadata": {
-      "annotations": {
-       "artifact.spinnaker.io/version": "false"
-      },
-      "name": "initscript",
-      "namespace": "default"
-     }
-    }
-   ],
-   "moniker": {
-    "app": "multiclouddemo"
-   },
-   "name": "deployscript",
-   "namespaceOverride": "default",
-   "refId": "1",
-   "requisiteStageRefIds": [],
-   "skipExpressionEvaluation": false,
-   "source": "text",
-   "trafficManagement": {
-    "enabled": false,
-    "options": {
-     "enableTraffic": false
-    }
-   },
-   "type": "deployManifest"
-  },
-  {
-   "account": "default",
-   "alias": "runJob",
-   "application": "maven",
-   "cloudProvider": "kubernetes",
-   "comments": "This is a run-job stage that executes the script created in the previous stage. The user is expected to create git-secret in the namespace where this is going to run.",
-   "consumeArtifact": {
-    "artifactAccount": "embedded-artifact",
-    "id": "d55145dd-3308-4eef-85cf-a83adb7c270f",
-    "name": "newhelm",
-    "type": "embedded/base64"
-   },
-   "consumeArtifactAccount": "embedded-artifact",
-   "consumeArtifactId": "d55145dd-3308-4eef-85cf-a83adb7c270f",
-   "consumeArtifactSource": "propertyFile",
-   "credentials": "default",
-   "expectedArtifacts": [
-    {
-     "defaultArtifact": {
-      "artifactAccount": "embedded-artifact",
-      "id": "b4c9d1a6-f8d1-4186-ab48-7523a30c2416",
-      "name": "oes",
-      "type": "embedded/base64"
-     },
-     "displayName": "oes-helm",
-     "id": "134790c5-c955-4c07-ad1d-8f7422de96c4",
-     "matchArtifact": {
-      "artifactAccount": "embedded-artifact",
-      "id": "5bc82d5b-6ae1-47e0-93e4-e9a5e12be7e2",
-      "name": "base64Helm",
-      "type": "embedded/base64"
-     },
-     "useDefaultArtifact": false,
-     "usePriorArtifact": false
-    }
-   ],
-   "manifest": {
-    "apiVersion": "batch/v1",
-    "kind": "Job",
-    "metadata": {
-     "annotations": {
-      "artifact.spinnaker.io/version": "false"
-     },
-     "generateName": "gitmavenjob-",
-     "labels": {
-      "app": "maven"
-     },
-     "namespace": "default"
-    },
-    "spec": {
-     "backoffLimit": 0,
-     "template": {
-      "spec": {
-       "containers": [
+      "default": "github.com/ksrinimba/sample-pipeline-manifest.git",
+      "description": "repo url do not use http ot https:// in the beginning",
+      "hasOptions": true,
+      "label": "",
+      "name": "repo",
+      "options": [
         {
-         "command": [
-          "bash",
-          "/tmp/initscript/run.sh"
-         ],
-         "env": [
-          {
-           "name": "gitrepo",
-           "value": "${parameters.repo}"
-          },
-          {
-           "name": "gitbranch",
-           "value": "${parameters.branch}"
-          },
-          {
-           "name": "cleanworkspace",
-           "value": "${parameters.clean}"
-          },
-          {
-           "name": "gitusername",
-           "valueFrom": {
-            "secretKeyRef": {
-             "key": "gitusername",
-             "name": "gitsecret"
-            }
-           }
-          },
-          {
-           "name": "gitpassword",
-           "valueFrom": {
-            "secretKeyRef": {
-             "key": "gitpwd",
-             "name": "gitsecret"
-            }
-           }
-          }
-         ],
-         "image": "${parameters.image}",
-         "name": "gitmavenstage",
-         "volumeMounts": [
-          {
-           "mountPath": "/usr/src",
-           "name": "gitrepo"
-          },
-          {
-           "mountPath": "/tmp/initscript/",
-           "name": "initscript"
-          }
-         ]
-        }
-       ],
-       "restartPolicy": "Never",
-       "volumes": [
-        {
-         "emptyDir": {},
-         "name": "gitrepo"
+          "value": "github.com/ksrinimba/sample-pipeline-manifest.git"
         },
         {
-         "configMap": {
-          "defaultMode": 420,
-          "name": "initscript"
-         },
-         "name": "initscript"
+          "value": "github.com/OpsMx/enterprise-spinnaker.git"
         }
-       ]
-      }
-     }
-    }
-   },
-   "name": "Helm-job",
-   "propertyFile": "gitmavenstage",
-   "refId": "2",
-   "requisiteStageRefIds": [
-    "1"
-   ],
-   "source": "text",
-   "type": "runJobManifest"
-  },
-  {
-   "comments": "Evaluate stage lets us see the pipeline variables, artifact created in the previous stage, etc.",
-   "failOnFailedExpressions": true,
-   "name": "Evaluate Variables",
-   "refId": "5",
-   "requisiteStageRefIds": [
-    "2"
-   ],
-   "type": "evaluateVariables",
-   "variables": [
+      ],
+      "pinned": true,
+      "required": true
+    },
     {
-     "key": "test",
-     "value": "${#stage('Helm-job')['context']['artifacts']}"
-    }
-   ]
-  },
-  {
-   "failPipeline": true,
-   "judgmentInputs": [],
-   "name": "Manual Judgment",
-   "notifications": [],
-   "refId": "6",
-   "requisiteStageRefIds": [
-    "5"
-   ],
-   "type": "manualJudgment"
-  },
-  {
-   "expectedArtifacts": [
+      "default": "main",
+      "description": "the branch , commit sha or tag to checkout",
+      "hasOptions": true,
+      "label": "",
+      "name": "branch",
+      "options": [
+        {
+          "value": "main"
+        },
+        {
+          "value": "master"
+        }
+      ],
+      "pinned": true,
+      "required": true
+    },
     {
-     "defaultArtifact": {
-      "customKind": true,
-      "id": "df45b02c-de99-48e2-b7a4-872d12628ea0"
-     },
-     "displayName": "swift-octopus-39",
-     "id": "911966c1-a026-436c-834c-e2f953eaff89",
-     "matchArtifact": {
-      "artifactAccount": "embedded-artifact",
-      "customKind": false,
-      "id": "32abd15f-2eba-46e7-b8c8-d6656f6c1945",
-      "name": "hello-world",
-      "type": "embedded/base64"
-     },
-     "useDefaultArtifact": false,
-     "usePriorArtifact": false
-    }
-   ],
-   "inputArtifacts": [
+      "default": "false",
+      "description": "clean t he workspace to start a fresh build",
+      "hasOptions": true,
+      "label": "",
+      "name": "clean",
+      "options": [
+        {
+          "value": "true"
+        },
+        {
+          "value": "fasle"
+        }
+      ],
+      "pinned": false,
+      "required": false
+    },
     {
-     "account": "",
-     "id": "134790c5-c955-4c07-ad1d-8f7422de96c4"
+      "default": "quay.io/opsmxpublic/aws-helm:4",
+      "description": "choose docker image with maven and jdk versions https://hub.docker.com/_/maven has more options",
+      "hasOptions": true,
+      "label": "",
+      "name": "image",
+      "options": [
+        {
+          "value": "maven:3.6.3-jdk-8"
+        },
+        {
+          "value": "maven:3-jdk-11"
+        },
+        {
+          "value": "alpine/helm"
+        }
+      ],
+      "pinned": false,
+      "required": false
     }
-   ],
-   "name": "Bake (Manifest)",
-   "namespace": "default",
-   "outputName": "hello-world",
-   "overrides": {
-    "installSpinnaker": "false"
-   },
-   "refId": "7",
-   "requisiteStageRefIds": [
-    "6"
-   ],
-   "templateRenderer": "HELM3",
-   "type": "bakeManifest"
-  },
-  {
-   "account": "default",
-   "cloudProvider": "kubernetes",
-   "manifestArtifactId": "911966c1-a026-436c-834c-e2f953eaff89",
-   "moniker": {
-    "app": "sampleapp"
-   },
-   "name": "Deploy (Manifest)",
-   "namespaceOverride": "default",
-   "refId": "8",
-   "requisiteStageRefIds": [
-    "7"
-   ],
-   "skipExpressionEvaluation": false,
-   "source": "artifact",
-   "trafficManagement": {
-    "enabled": false,
-    "options": {
-     "enableTraffic": false,
-     "services": []
+  ],
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "comments": "This is a script that is executed in the next stage.",
+      "manifests": [
+        {
+          "apiVersion": "v1",
+          "data": {
+            "run.sh": "#!/bin/bash set -x\ncd /usr/src\ngit --version\n\nbasedir=$(echo $gitrepo | sed 's/\\// /g' | awk '{ print $NF}' | sed 's/.git//')\necho\nif [ \"$cleanworkspace\" = true ] ; then\necho \"deleting workspace $basedir\"\nrm -rf $basedir\nfi\n####################\necho checking if $basedir exists\necho\nif [ -d \"$basedir\" ]; then\necho updating \"$basedir\" with \"$gitbranch\" from \"https://\"$gitrepo\"\"\ncd $basedir\ngit checkout $gitbranch \ngit pull\nelse\necho cloning into \"$basedir\" with with \"$gitbranch\" from \"https://\"$gitrepo\"\"\ngit clone  \"https://\"$gitusername\":\"$gitpassword\"@\"$gitrepo\"\"\ncd $basedir\necho \"-----------------------------------------------------------------\"\ngit log -1 \necho \"-----------------------------------------------------------------\"\ngit checkout $gitbranch\nfi\n#########################\necho the current git status is\ngit status\necho\necho current revision of workspace is \ngit rev-parse HEAD\necho\nls -ltra\npwd \ncd charts \npwd \ntar czvf hello-world.tgz oes\nbase64Helm=`cat hello-world.tgz | base64 -w0` \npart1='{\"artifacts\":[{\"type\":\"embedded/base64\",\"reference\":\"'\npart2='\" ,\"name\":\"base64Helm\"}]}'\necho SPINNAKER_CONFIG_JSON=\"$part1$base64Helm$part2\"\n\n \n \n"
+          },
+          "kind": "ConfigMap",
+          "metadata": {
+            "annotations": {
+              "artifact.spinnaker.io/version": "false"
+            },
+            "name": "initscript",
+            "namespace": "default"
+          }
+        }
+      ],
+      "moniker": {
+        "app": "multiclouddemo"
+      },
+      "name": "deployscript",
+      "namespaceOverride": "default",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "account": "default",
+      "alias": "runJob",
+      "application": "maven",
+      "cloudProvider": "kubernetes",
+      "comments": "This is a run-job stage that executes the script created in the previous stage. The user is expected to create git-secret in the namespace where this is going to run.",
+      "consumeArtifact": {
+        "artifactAccount": "embedded-artifact",
+        "id": "d55145dd-3308-4eef-85cf-a83adb7c270f",
+        "name": "newhelm",
+        "type": "embedded/base64"
+      },
+      "consumeArtifactAccount": "embedded-artifact",
+      "consumeArtifactId": "d55145dd-3308-4eef-85cf-a83adb7c270f",
+      "consumeArtifactSource": "propertyFile",
+      "credentials": "default",
+      "expectedArtifacts": [
+        {
+          "defaultArtifact": {
+            "artifactAccount": "embedded-artifact",
+            "id": "b4c9d1a6-f8d1-4186-ab48-7523a30c2416",
+            "name": "oes",
+            "type": "embedded/base64"
+          },
+          "displayName": "oes-helm",
+          "id": "134790c5-c955-4c07-ad1d-8f7422de96c4",
+          "matchArtifact": {
+            "artifactAccount": "embedded-artifact",
+            "id": "5bc82d5b-6ae1-47e0-93e4-e9a5e12be7e2",
+            "name": "base64Helm",
+            "type": "embedded/base64"
+          },
+          "useDefaultArtifact": false,
+          "usePriorArtifact": false
+        }
+      ],
+      "manifest": {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+          "annotations": {
+            "artifact.spinnaker.io/version": "false"
+          },
+          "generateName": "gitmavenjob-",
+          "labels": {
+            "app": "maven"
+          },
+          "namespace": "default"
+        },
+        "spec": {
+          "backoffLimit": 0,
+          "template": {
+            "spec": {
+              "containers": [
+                {
+                  "command": [
+                    "bash",
+                    "/tmp/initscript/run.sh"
+                  ],
+                  "env": [
+                    {
+                      "name": "gitrepo",
+                      "value": "${parameters.repo}"
+                    },
+                    {
+                      "name": "gitbranch",
+                      "value": "${parameters.branch}"
+                    },
+                    {
+                      "name": "cleanworkspace",
+                      "value": "${parameters.clean}"
+                    },
+                    {
+                      "name": "gitusername",
+                      "valueFrom": {
+                        "secretKeyRef": {
+                          "key": "gitusername",
+                          "name": "gitsecret"
+                        }
+                      }
+                    },
+                    {
+                      "name": "gitpassword",
+                      "valueFrom": {
+                        "secretKeyRef": {
+                          "key": "gitpwd",
+                          "name": "gitsecret"
+                        }
+                      }
+                    }
+                  ],
+                  "image": "${parameters.image}",
+                  "name": "gitmavenstage",
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/usr/src",
+                      "name": "gitrepo"
+                    },
+                    {
+                      "mountPath": "/tmp/initscript/",
+                      "name": "initscript"
+                    }
+                  ]
+                }
+              ],
+              "restartPolicy": "Never",
+              "volumes": [
+                {
+                  "emptyDir": {},
+                  "name": "gitrepo"
+                },
+                {
+                  "configMap": {
+                    "defaultMode": 420,
+                    "name": "initscript"
+                  },
+                  "name": "initscript"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "name": "Helm-job",
+      "propertyFile": "gitmavenstage",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "source": "text",
+      "type": "runJobManifest"
+    },
+    {
+      "comments": "Evaluate stage lets us see the pipeline variables, artifact created in the previous stage, etc.",
+      "failOnFailedExpressions": true,
+      "name": "Evaluate Variables",
+      "refId": "5",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "test",
+          "value": "${#stage('Helm-job')['context']['artifacts']}"
+        }
+      ]
+    },
+    {
+      "failPipeline": true,
+      "judgmentInputs": [],
+      "name": "Manual Judgment",
+      "notifications": [],
+      "refId": "6",
+      "requisiteStageRefIds": [
+        "5"
+      ],
+      "type": "manualJudgment"
+    },
+    {
+      "expectedArtifacts": [
+        {
+          "defaultArtifact": {
+            "customKind": true,
+            "id": "df45b02c-de99-48e2-b7a4-872d12628ea0"
+          },
+          "displayName": "swift-octopus-39",
+          "id": "911966c1-a026-436c-834c-e2f953eaff89",
+          "matchArtifact": {
+            "artifactAccount": "embedded-artifact",
+            "customKind": false,
+            "id": "32abd15f-2eba-46e7-b8c8-d6656f6c1945",
+            "name": "hello-world",
+            "type": "embedded/base64"
+          },
+          "useDefaultArtifact": false,
+          "usePriorArtifact": false
+        }
+      ],
+      "inputArtifacts": [
+        {
+          "account": "",
+          "id": "134790c5-c955-4c07-ad1d-8f7422de96c4"
+        }
+      ],
+      "name": "Bake (Manifest)",
+      "namespace": "default",
+      "outputName": "hello-world",
+      "overrides": {
+        "installSpinnaker": "false"
+      },
+      "refId": "7",
+      "requisiteStageRefIds": [
+        "6"
+      ],
+      "templateRenderer": "HELM3",
+      "type": "bakeManifest"
+    },
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifactId": "911966c1-a026-436c-834c-e2f953eaff89",
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy (Manifest)",
+      "namespaceOverride": "default",
+      "refId": "8",
+      "requisiteStageRefIds": [
+        "7"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
     }
-   },
-   "type": "deployManifest"
-  }
- ],
- "triggers": [],
- "updateTs": "1635327446000"
+  ],
+  "triggers": [],
+  "updateTs": "1635327446000"
 }

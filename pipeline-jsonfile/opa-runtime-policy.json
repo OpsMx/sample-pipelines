@@ -1,86 +1,85 @@
 {
- "application": "sampleapp",
- "description": "This sample pipeline shows the opa runtime policy use case.",
- "id": "028620ae-2e79-42d2-a1c4-dd10f02ae357",
- "index": 16,
- "keepWaitingPipelines": false,
- "lastModifiedBy": "admin",
- "limitConcurrent": true,
- "name": "opa-runtime-policy",
- "spelEvaluator": "v4",
- "stages": [
-  {
-   "account": "default",
-   "cloudProvider": "kubernetes",
-   "manifests": [
+  "appConfig": {},
+  "description": "This sample pipeline shows the opa runtime policy use case.",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "name": "opa-runtime-policy",
+  "application": "sampleapp",
+  "spelEvaluator": "v4",
+  "stages": [
     {
-     "apiVersion": "apps/v1",
-     "kind": "Deployment",
-     "metadata": {
-      "name": "nginx-deployment"
-     },
-     "spec": {
-      "replicas": 1,
-      "selector": {
-       "matchLabels": {
-        "app": "nginx"
-       }
-      },
-      "template": {
-       "metadata": {
-        "labels": {
-         "app": "nginx"
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "name": "nginx-deployment"
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app": "nginx"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "nginx"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "image": "nginx:1.14.2",
+                    "name": "nginx",
+                    "ports": [
+                      {
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
         }
-       },
-       "spec": {
-        "containers": [
-         {
-          "image": "nginx:1.14.2",
-          "name": "nginx",
-          "ports": [
-           {
-            "containerPort": 80
-           }
-          ]
-         }
-        ]
-       }
-      }
-     }
+      ],
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy (Manifest)",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "4"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
+    {
+      "alias": "preconfiguredJob",
+      "name": "Policy Stage",
+      "parameters": {
+        "payload": "",
+        "policypath": "/v1/data/opa/pipelines/datetimeslot",
+        "policyurl": "http://oes-sapor:8085"
+      },
+      "refId": "4",
+      "requisiteStageRefIds": [],
+      "type": "Policy Stage"
     }
-   ],
-   "moniker": {
-    "app": "sampleapp"
-   },
-   "name": "Deploy (Manifest)",
-   "refId": "2",
-   "requisiteStageRefIds": [
-    "4"
-   ],
-   "skipExpressionEvaluation": false,
-   "source": "text",
-   "trafficManagement": {
-    "enabled": false,
-    "options": {
-     "enableTraffic": false,
-     "services": []
-    }
-   },
-   "type": "deployManifest"
-  },
-  {
-   "alias": "preconfiguredJob",
-   "name": "Policy Stage",
-   "parameters": {
-    "payload": "",
-    "policypath": "/v1/data/opa/pipelines/datetimeslot",
-    "policyurl": "http://oes-sapor:8085"
-   },
-   "refId": "4",
-   "requisiteStageRefIds": [],
-   "type": "Policy Stage"
-  }
- ],
- "triggers": [],
- "updateTs": "1615292755000"
+  ],
+  "triggers": [],
+  "updateTs": "1615292755000"
 }

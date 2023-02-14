@@ -1,0 +1,266 @@
+{
+ "application": "sampleapp",
+ "description": "PR webhook trigger the pipeline, check if the target is master and execute. Best for build-deploy-test based on PR requests.",
+ "disabled": false,
+ "id": "18449174-3e2f-4271-a293-eca3c0ebe746",
+ "index": 22,
+ "keepWaitingPipelines": true,
+ "lastModifiedBy": "srinivas@opsmx.io",
+ "limitConcurrent": true,
+ "name": "git-pr-trigger",
+ "notifications": [],
+ "parameterConfig": [],
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "account": "default",
+   "alias": "runJob",
+   "application": "sampleapp",
+   "cloudProvider": "kubernetes",
+   "comments": "Extract the PR information like PR status, PR num, base org, repo, user, branch  and org, repo, user, branch, user email address  via API calls and export these are variables for next stage.",
+   "completeOtherBranchesThenFail": false,
+   "consumeArtifactSource": "propertyFile",
+   "continuePipeline": false,
+   "credentials": "default",
+   "failPipeline": true,
+   "manifest": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+     "generateName": "fetch-",
+     "labels": {
+      "spinnakerlabel": "deljob"
+     },
+     "namespace": "default"
+    },
+    "spec": {
+     "backoffLimit": 2,
+     "template": {
+      "spec": {
+       "containers": [
+        {
+         "args": [
+          "#Install jq CLI on Alpine\napk add jq\nhash=${trigger[\"hash\"]}\ngitOrg=${trigger[\"project\"]}\ngitRepo=${trigger[\"slug\"]}\nsrcBranch=${trigger[\"branch\"]}\nREPO_API=\"https://api.github.com/repos/$gitOrg/$gitRepo\"\nsrcRepo=$gitRepo\nISSUES_API=\"https://api.github.com/search/issues?q=sha:$hash+q=repo:$gitOrg/$gitRepo+sort:created-desc\"\nISSUES_CURL=\"curl -s -u $gitusername:$gitpwd $ISSUES_API\"\nprNum=$($ISSUES_CURL | jq '.items |.[0].number') 2\u003e /dev/null\nPR_CURL=\"curl -s -u $gitusername:$gitpwd $REPO_API/commits/$hash\"\nprUser=$($PR_CURL | jq '.commit.author.name' -r) 2\u003e /dev/null\nprUserEmail=$($PR_CURL | jq '.commit.author.email' -r)\nbaseBranch=$(curl -s -u $gitusername:$gitpwd \\\n$REPO_API/pulls/$prNum \\\n| jq '.base.ref' -r) 2\u003e /dev/null\nsrcOrg=$(curl -s -u $gitusername:$gitpwd \\\n$REPO_API/pulls/$prNum \\\n| jq '.head.label' -r \\\n| cut -d \":\" -f 1) 2\u003e /dev/null\n#Display extracted values\necho SPINNAKER_PROPERTY_GITORG=\"$gitOrg\"\n#echo SPINNAKER_PROPERTY_GITUSER=\"$gitAccount\"\n#echo SPINNAKER_PROPERTY_SRCORG=\"$srcOrg\"\necho SPINNAKER_PROPERTY_SRCORG=\"$srcOrg\"\necho SPINNAKER_PROPERTY_SRCREPO=\"$srcRepo\"\necho SPINNAKER_PROPERTY_SRCBRANCH=\"$srcBranch\"\necho SPINNAKER_PROPERTY_GITPRNUM=\"$prNum\"\necho SPINNAKER_PROPERTY_GITBRANCH=\"$baseBranch\"\necho SPINNAKER_PROPERTY_PRUSER=\"$prUser\"\necho SPINNAKER_PROPERTY_PRUSEREMAIL=\"$prUserEmail\""
+         ],
+         "command": [
+          "/bin/sh",
+          "+x",
+          "-c"
+         ],
+         "env": [
+          {
+           "name": "gitusername",
+           "valueFrom": {
+            "secretKeyRef": {
+             "key": "gitusername",
+             "name": "gitsecret"
+            }
+           }
+          },
+          {
+           "name": "gitpwd",
+           "valueFrom": {
+            "secretKeyRef": {
+             "key": "gitpwd",
+             "name": "gitsecret"
+            }
+           }
+          }
+         ],
+         "image": "opsmxdev/apline-with-curl:wjq",
+         "name": "fetch"
+        }
+       ],
+       "restartPolicy": "Never"
+      }
+     }
+    }
+   },
+   "name": "git",
+   "notifications": [],
+   "propertyFile": "fetch",
+   "refId": "5",
+   "requisiteStageRefIds": [
+    "32"
+   ],
+   "sendNotifications": false,
+   "source": "text",
+   "type": "runJobManifest"
+  },
+  {
+   "comments": "A stage to check what the parameters are looking like. Not required during use but very helpful during set-up.",
+   "completeOtherBranchesThenFail": false,
+   "continuePipeline": true,
+   "failOnFailedExpressions": false,
+   "failPipeline": false,
+   "name": "webhook parameters",
+   "refId": "27",
+   "requisiteStageRefIds": [
+    "5"
+   ],
+   "type": "evaluateVariables",
+   "variables": [
+    {
+     "key": "gitOrg",
+     "value": "${#stage('git')['outputs']['gitorg'] }"
+    },
+    {
+     "key": "srcorg",
+     "value": "${#stage('git')['outputs']['srcorg'] }"
+    },
+    {
+     "key": "srcrepo",
+     "value": "${#stage('git')['outputs']['srcrepo'] }"
+    },
+    {
+     "key": "srcbranch",
+     "value": "${#stage('git')['outputs']['srcbranch'] }"
+    },
+    {
+     "key": "gitprnum",
+     "value": "${#stage('git')['outputs']['gitprnum'] }"
+    },
+    {
+     "key": "gitbranch",
+     "value": "${#stage('git')['outputs']['gitbranch'] }"
+    },
+    {
+     "key": "pruser",
+     "value": "${#stage('git')['outputs']['pruser'] }"
+    },
+    {
+     "key": "pruseremail",
+     "value": "${#stage('git')['outputs']['pruseremail'] }"
+    },
+    {
+     "key": "action",
+     "value": " ${trigger['action']}"
+    },
+    {
+     "key": "composite",
+     "value": "${gitbranch=='master'} \u0026\u0026 ${trigger['action']=='pull_request:opened'}"
+    }
+   ]
+  },
+  {
+   "comments": "checks PR is created to the specific branch, in this case \"master\"",
+   "name": "CheckMaster",
+   "preconditions": [
+    {
+     "context": {
+      "expression": "${#stage('git')['outputs']['gitbranch'] == \"master\"}",
+      "failureMessage": "PR is not created to the master branch"
+     },
+     "failPipeline": false,
+     "type": "expression"
+    }
+   ],
+   "refId": "31",
+   "requisiteStageRefIds": [
+    "5"
+   ],
+   "type": "checkPreconditions"
+  },
+  {
+   "comments": "Check the PR status that it is not closed, only for forward is the specified actions are there.",
+   "name": "CheckPRopened",
+   "preconditions": [
+    {
+     "context": {
+      "expression": "${trigger['action']=='pull_request:opened'} || ${trigger['action']=='pull_request:reopened'} ||\n${trigger['action']=='pull_request:synchronize'}",
+      "failureMessage": "${trigger['action']} Trigger action is not PR opened or reopened or synchronize"
+     },
+     "failPipeline": false,
+     "type": "expression"
+    }
+   ],
+   "refId": "32",
+   "requisiteStageRefIds": [],
+   "type": "checkPreconditions"
+  },
+  {
+   "comments": "Sample wait stage where the build stage could go.",
+   "name": "buildcode",
+   "refId": "33",
+   "requisiteStageRefIds": [
+    "31"
+   ],
+   "type": "wait",
+   "waitTime": 3
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "comments": "deploy the image that is created from the compare branch code. All the trigger variables are available for use in the manifest (the example does not show it).",
+   "manifests": [
+    {
+     "apiVersion": "apps/v1",
+     "kind": "Deployment",
+     "metadata": {
+      "labels": {
+       "app": "nginx"
+      },
+      "name": "nginx-deployment"
+     },
+     "spec": {
+      "replicas": 1,
+      "selector": {
+       "matchLabels": {
+        "app": "nginx"
+       }
+      },
+      "template": {
+       "metadata": {
+        "labels": {
+         "app": "nginx"
+        }
+       },
+       "spec": {
+        "containers": [
+         {
+          "image": "nginx:1.14.2",
+          "name": "nginx",
+          "ports": [
+           {
+            "containerPort": 80
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Deployment",
+   "refId": "34",
+   "requisiteStageRefIds": [
+    "33"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false,
+     "services": []
+    }
+   },
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": [
+  {
+   "branch": "",
+   "enabled": true,
+   "project": "maheshopsmxorg",
+   "secret": "",
+   "slug": "mahesh-repo-trigger",
+   "source": "github",
+   "type": "git"
+  }
+ ]
+}

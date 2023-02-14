@@ -1,0 +1,145 @@
+{
+ "application": "sampleapp",
+ "description": "Pipeline to demonstrate conditional execution. The variables can come from multiple sources. In this, we use Manual Judgement stage: Go - deploy, waitAndGo: wait for 30 sec and deploy, goElseWhere - fail the pipeline",
+ "id": "72d60956-8b70-45f9-a6a8-3225cd9342a1",
+ "index": 23,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "srinivas@opsmx.io",
+ "limitConcurrent": true,
+ "name": "conditionals",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "failPipeline": true,
+   "instructions": "Please selection an option",
+   "judgmentInputs": [
+    {
+     "value": "go"
+    },
+    {
+     "value": "waitAndGo"
+    },
+    {
+     "value": "goElseWhere"
+    }
+   ],
+   "name": "whereToGo",
+   "notifications": [],
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "type": "manualJudgment"
+  },
+  {
+   "failOnFailedExpressions": true,
+   "name": "Evaluate Variables",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "1"
+   ],
+   "type": "evaluateVariables",
+   "variables": [
+    {
+     "key": "whereToGo",
+     "value": "${#stage('whereToGo')['context']['judgmentInput'] != 'goElseWhere'}"
+    }
+   ]
+  },
+  {
+   "failOnFailedExpressions": false,
+   "name": "Check Preconditions",
+   "preconditions": [
+    {
+     "context": {
+      "expression": "${#stage('whereToGo')['context']['judgmentInput'] != 'goElseWhere'}",
+      "failureMessage": "Don't know where to go."
+     },
+     "failPipeline": true,
+     "type": "expression"
+    }
+   ],
+   "refId": "3",
+   "requisiteStageRefIds": [
+    "2"
+   ],
+   "type": "checkPreconditions"
+  },
+  {
+   "name": "WaitAndGo",
+   "refId": "4",
+   "requisiteStageRefIds": [
+    "3"
+   ],
+   "stageEnabled": {
+    "expression": "${#stage('whereToGo')['context']['judgmentInput'] == 'waitAndGo'}",
+    "type": "expression"
+   },
+   "type": "wait",
+   "waitTime": 30
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifests": [
+    {
+     "apiVersion": "apps/v1",
+     "kind": "Deployment",
+     "metadata": {
+      "labels": {
+       "app": "nginx"
+      },
+      "name": "conditional-deployment"
+     },
+     "spec": {
+      "replicas": 1,
+      "selector": {
+       "matchLabels": {
+        "app": "nginx"
+       }
+      },
+      "template": {
+       "metadata": {
+        "labels": {
+         "app": "nginx"
+        }
+       },
+       "spec": {
+        "containers": [
+         {
+          "image": "nginx:1.14.2",
+          "name": "nginx",
+          "ports": [
+           {
+            "containerPort": 80
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "target",
+   "refId": "5",
+   "requisiteStageRefIds": [
+    "4"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "text",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false,
+     "services": []
+    }
+   },
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": [],
+ "updateTs": "1644746321419"
+}

@@ -1,48 +1,46 @@
 {
- "appConfig": {},
- "application": "sampleapp",
- "id": "b0a0c365-1118-4384-a414-ccf2c5c4b40d",
- "index": 1,
- "keepWaitingPipelines": false,
- "lastModifiedBy": "admin",
- "limitConcurrent": true,
- "name": "http",
- "spelEvaluator": "v4",
- "stages": [
-  {
-   "account": "deploydev",
-   "cloudProvider": "kubernetes",
-   "manifestArtifact": {
-    "artifactAccount": "http",
-    "id": "aa6cb687-d2ef-40c3-a4b6-c8335956df57",
-    "reference": "https://jenkins.opsmx.net:8181/jenkins/job/Dev-testhttpartifact/ws/deployment.yaml",
-    "type": "http/file"
-   },
-   "moniker": {
-    "app": "sampleapp"
-   },
-   "name": "Deploy (Manifest)",
-   "namespaceOverride": "deploy-dev",
-   "refId": "1",
-   "requisiteStageRefIds": [],
-   "skipExpressionEvaluation": false,
-   "source": "artifact",
-   "trafficManagement": {
-    "enabled": false,
-    "options": {
-     "enableTraffic": false
+  "appConfig": {},
+  "application": "sampleapp",
+  "name": "http",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "deploydev",
+      "cloudProvider": "kubernetes",
+      "manifestArtifact": {
+        "artifactAccount": "http",
+        "id": "aa6cb687-d2ef-40c3-a4b6-c8335956df57",
+        "reference": "https://jenkins.opsmx.net:8181/jenkins/job/Dev-testhttpartifact/ws/deployment.yaml",
+        "type": "http/file"
+      },
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy (Manifest)",
+      "namespaceOverride": "deploy-dev",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
     }
-   },
-   "type": "deployManifest"
-  }
- ],
- "triggers": [
-  {
-   "enabled": true,
-   "job": "Dev-testhttpartifact",
-   "master": "test-jenkins",
-   "type": "jenkins"
-  }
- ],
- "updateTs": "1653372314000"
+  ],
+  "triggers": [
+    {
+      "enabled": true,
+      "job": "Dev-testhttpartifact",
+      "master": "test-jenkins",
+      "type": "jenkins"
+    }
+  ],
+  "updateTs": "1653372314000"
 }

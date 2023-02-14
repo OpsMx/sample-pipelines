@@ -1,0 +1,80 @@
+{
+ "application": "sampleapp",
+ "description": "This pipeline deploys gitrepo artifact based helm chart, baked from folder in git: https://github.com/opsmx/github-bake-test.git",
+ "id": "0ef07506-4dea-4d94-b38e-d14e7cb18d61",
+ "index": 8,
+ "keepWaitingPipelines": false,
+ "lastModifiedBy": "admin",
+ "limitConcurrent": true,
+ "name": "helm-bake-from-git-folder",
+ "spelEvaluator": "v4",
+ "stages": [
+  {
+   "expectedArtifacts": [
+    {
+     "defaultArtifact": {
+      "customKind": true,
+      "id": "85973bcc-7e4a-40d2-b34e-cc9efa4cdace"
+     },
+     "displayName": "opsmx-sample-helm-bake",
+     "id": "cfdb2b9d-c2c5-44b7-89a6-575d4b545ed6",
+     "matchArtifact": {
+      "artifactAccount": "embedded-artifact",
+      "customKind": false,
+      "id": "99cc880f-e69b-431d-9753-6217faf91c0c",
+      "name": "opsmx-sample",
+      "type": "embedded/base64"
+     },
+     "useDefaultArtifact": false,
+     "usePriorArtifact": false
+    }
+   ],
+   "inputArtifacts": [
+    {
+     "account": "opsmx_repo",
+     "artifact": {
+      "artifactAccount": "opsmx_repo",
+      "id": "9727e3ac-fade-4f9a-9dd2-691da7523b43",
+      "reference": "https://github.com/opsmx/github-bake-test.git",
+      "type": "git/repo"
+     }
+    }
+   ],
+   "name": "Bake (Manifest)",
+   "namespace": "oes",
+   "outputName": "opsmx-sample",
+   "overrides": {
+    "Name": "opsmx-alpine"
+   },
+   "refId": "1",
+   "requisiteStageRefIds": [],
+   "templateRenderer": "HELM3",
+   "type": "bakeManifest"
+  },
+  {
+   "account": "default",
+   "cloudProvider": "kubernetes",
+   "manifestArtifactId": "cfdb2b9d-c2c5-44b7-89a6-575d4b545ed6",
+   "moniker": {
+    "app": "sampleapp"
+   },
+   "name": "Deploy (Manifest)",
+   "namespaceOverride": "default",
+   "refId": "2",
+   "requisiteStageRefIds": [
+    "1"
+   ],
+   "skipExpressionEvaluation": false,
+   "source": "artifact",
+   "trafficManagement": {
+    "enabled": false,
+    "options": {
+     "enableTraffic": false,
+     "services": []
+    }
+   },
+   "type": "deployManifest"
+  }
+ ],
+ "triggers": []
+}

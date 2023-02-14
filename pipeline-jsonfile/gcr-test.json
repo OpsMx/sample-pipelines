@@ -1,83 +1,80 @@
 {
- "appConfig": {},
- "application": "sampleapp",
- "id": "ddc40caf-0741-4b4a-95ef-23ec6518029c",
- "index": 2,
- "keepWaitingPipelines": false,
- "lastModifiedBy": "admin",
- "limitConcurrent": true,
- "name": "gcr-test",
- "spelEvaluator": "v4",
- "stages": [
-  {
-   "account": "default",
-   "cloudProvider": "kubernetes",
-   "manifests": [
+  "appConfig": {},
+  "application": "sampleapp",
+  "name": "gcr-test",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "spelEvaluator": "v4",
+  "stages": [
     {
-     "apiVersion": "v1",
-     "kind": "Pod",
-     "metadata": {
-      "name": "busybox"
-     },
-     "spec": {
-      "containers": [
-       {
-        "command": [
-         "sleep",
-         "3600"
-        ],
-        "image": "${image}",
-        "imagePullPolicy": "IfNotPresent",
-        "name": "busybox"
-       }
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifests": [
+        {
+          "apiVersion": "v1",
+          "kind": "Pod",
+          "metadata": {
+            "name": "busybox"
+          },
+          "spec": {
+            "containers": [
+              {
+                "command": [
+                  "sleep",
+                  "3600"
+                ],
+                "image": "${image}",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "busybox"
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
       ],
-      "restartPolicy": "Always"
-     }
-    }
-   ],
-   "moniker": {
-    "app": "gcrtest"
-   },
-   "name": "Deploy (Manifest)",
-   "namespaceOverride": "isd3124testing",
-   "refId": "1",
-   "requisiteStageRefIds": [
-    "2"
-   ],
-   "skipExpressionEvaluation": false,
-   "source": "text",
-   "trafficManagement": {
-    "enabled": false,
-    "options": {
-     "enableTraffic": false,
-     "services": []
-    }
-   },
-   "type": "deployManifest"
-  },
-  {
-   "failOnFailedExpressions": true,
-   "name": "Evaluate Variables",
-   "refId": "2",
-   "requisiteStageRefIds": [],
-   "type": "evaluateVariables",
-   "variables": [
+      "moniker": {
+        "app": "gcrtest"
+      },
+      "name": "Deploy (Manifest)",
+      "namespaceOverride": "isd3124testing",
+      "refId": "1",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "text",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
+    },
     {
-     "key": "image",
-     "value": "${trigger.artifacts[0].reference}"
+      "failOnFailedExpressions": true,
+      "name": "Evaluate Variables",
+      "refId": "2",
+      "requisiteStageRefIds": [],
+      "type": "evaluateVariables",
+      "variables": [
+        {
+          "key": "image",
+          "value": "${trigger.artifacts[0].reference}"
+        }
+      ]
     }
-   ]
-  }
- ],
- "triggers": [
-  {
-   "account": "gcrwithoutoken",
-   "enabled": true,
-   "organization": "development-project-210505",
-   "registry": "gcr.io",
-   "repository": "development-project-210505/busybox",
-   "type": "docker"
-  }
- ],
- "updateTs": "1653390820000"
+  ],
+  "triggers": [
+    {
+      "account": "gcrwithoutoken",
+      "enabled": true,
+      "organization": "",
+      "repository": "",
+      "type": "docker"
+    }
+  ],
+  "updateTs": "1653390820000"
 }

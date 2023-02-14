@@ -1,42 +1,40 @@
 {
- "appConfig": {},
- "application": "sampleapp",
- "id": "a83a7089-2e6a-443a-9b2f-6a6849b30ace",
- "index": 3,
- "keepWaitingPipelines": false,
- "lastModifiedBy": "admin",
- "limitConcurrent": true,
- "name": "gcs",
- "spelEvaluator": "v4",
- "stages": [
-  {
-   "account": "default",
-   "cloudProvider": "kubernetes",
-   "manifestArtifact": {
-    "artifactAccount": "gcsano",
-    "id": "74cbe02d-2638-441b-851b-d3d0a76765f9",
-    "name": "gs://srini-test-for-spin1/simple-deploy.yml",
-    "reference": "gs://srini-test-for-spin1/simple-deploy.yml",
-    "type": "gcs/object"
-   },
-   "moniker": {
-    "app": "gcrtest"
-   },
-   "name": "Deploy (Manifest)",
-   "namespaceOverride": "isd3124testing",
-   "refId": "1",
-   "requisiteStageRefIds": [],
-   "skipExpressionEvaluation": false,
-   "source": "artifact",
-   "trafficManagement": {
-    "enabled": false,
-    "options": {
-     "enableTraffic": false
+  "appConfig": {},
+  "application": "sampleapp",
+  "name": "gcs",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "spelEvaluator": "v4",
+  "stages": [
+    {
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifact": {
+        "artifactAccount": "gcsano",
+        "id": "74cbe02d-2638-441b-851b-d3d0a76765f9",
+        "name": "gs://srini-test-for-spin1/simple-deploy.yml",
+        "reference": "gs://srini-test-for-spin1/simple-deploy.yml",
+        "type": "gcs/object"
+      },
+      "moniker": {
+        "app": "gcrtest"
+      },
+      "name": "Deploy (Manifest)",
+      "namespaceOverride": "isd3124testing",
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false
+        }
+      },
+      "type": "deployManifest"
     }
-   },
-   "type": "deployManifest"
-  }
- ],
- "triggers": [],
- "updateTs": "1653395893000"
+  ],
+  "triggers": [],
+  "updateTs": "1653395893000"
 }

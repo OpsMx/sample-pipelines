@@ -1,78 +1,77 @@
 {
- "application": "sampleapp",
- "id": "e53df1df-2045-4396-9aa7-a99853e63a05",
- "index": 6,
- "keepWaitingPipelines": false,
- "lastModifiedBy": "admin",
- "limitConcurrent": true,
- "name": "gitrepo",
- "spelEvaluator": "v4",
- "stages": [
-  {
-   "expectedArtifacts": [
+  "appConfig": {},
+  "application": "sampleapp",
+  "name": "gitrepo",
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "admin",
+  "limitConcurrent": true,
+  "spelEvaluator": "v4",
+  "stages": [
     {
-     "defaultArtifact": {
-      "customKind": true,
-      "id": "bf8ebcb3-5674-437e-80dc-41c3c1c66436"
-     },
-     "displayName": "jolly-bulldog-99",
-     "id": "39caad01-c562-4158-b1f3-3135d49c1348",
-     "matchArtifact": {
-      "artifactAccount": "embedded-artifact",
-      "customKind": false,
-      "id": "5f7b04e2-1343-417e-a8ff-c385ebe53a02",
-      "name": "opsmx-sample",
-      "type": "embedded/base64"
-     },
-     "useDefaultArtifact": false,
-     "usePriorArtifact": false
-    }
-   ],
-   "inputArtifacts": [
+      "expectedArtifacts": [
+        {
+          "defaultArtifact": {
+            "customKind": true,
+            "id": "bf8ebcb3-5674-437e-80dc-41c3c1c66436"
+          },
+          "displayName": "jolly-bulldog-99",
+          "id": "39caad01-c562-4158-b1f3-3135d49c1348",
+          "matchArtifact": {
+            "artifactAccount": "embedded-artifact",
+            "customKind": false,
+            "id": "5f7b04e2-1343-417e-a8ff-c385ebe53a02",
+            "name": "opsmx-sample",
+            "type": "embedded/base64"
+          },
+          "useDefaultArtifact": false,
+          "usePriorArtifact": false
+        }
+      ],
+      "inputArtifacts": [
+        {
+          "account": "opsmx_repo",
+          "artifact": {
+            "artifactAccount": "opsmx_repo",
+            "id": "3a532e0b-a487-4f63-85c3-96fee52aa0b9",
+            "reference": "https://github.com/opsmx/github-bake-test.git",
+            "type": "git/repo"
+          }
+        }
+      ],
+      "name": "Bake (Manifest)",
+      "namespace": "oes",
+      "outputName": "opsmx-sample",
+      "overrides": {},
+      "refId": "1",
+      "requisiteStageRefIds": [],
+      "templateRenderer": "HELM3",
+      "type": "bakeManifest"
+    },
     {
-     "account": "opsmx_repo",
-     "artifact": {
-      "artifactAccount": "opsmx_repo",
-      "id": "3a532e0b-a487-4f63-85c3-96fee52aa0b9",
-      "reference": "https://github.com/opsmx/github-bake-test.git",
-      "type": "git/repo"
-     }
+      "account": "default",
+      "cloudProvider": "kubernetes",
+      "manifestArtifactId": "39caad01-c562-4158-b1f3-3135d49c1348",
+      "moniker": {
+        "app": "sampleapp"
+      },
+      "name": "Deploy (Manifest)",
+      "namespaceOverride": "isd3124testing",
+      "refId": "2",
+      "requisiteStageRefIds": [
+        "1"
+      ],
+      "skipExpressionEvaluation": false,
+      "source": "artifact",
+      "trafficManagement": {
+        "enabled": false,
+        "options": {
+          "enableTraffic": false,
+          "services": []
+        }
+      },
+      "type": "deployManifest"
     }
-   ],
-   "name": "Bake (Manifest)",
-   "namespace": "oes",
-   "outputName": "opsmx-sample",
-   "overrides": {},
-   "refId": "1",
-   "requisiteStageRefIds": [],
-   "templateRenderer": "HELM3",
-   "type": "bakeManifest"
-  },
-  {
-   "account": "default",
-   "cloudProvider": "kubernetes",
-   "manifestArtifactId": "39caad01-c562-4158-b1f3-3135d49c1348",
-   "moniker": {
-    "app": "sampleapp"
-   },
-   "name": "Deploy (Manifest)",
-   "namespaceOverride": "isd3124testing",
-   "refId": "2",
-   "requisiteStageRefIds": [
-    "1"
-   ],
-   "skipExpressionEvaluation": false,
-   "source": "artifact",
-   "trafficManagement": {
-    "enabled": false,
-    "options": {
-     "enableTraffic": false,
-     "services": []
-    }
-   },
-   "type": "deployManifest"
-  }
- ],
- "triggers": [],
- "updateTs": "1653305533000"
+  ],
+  "triggers": [],
+  "updateTs": "1653305533000"
 }
