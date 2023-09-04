@@ -3,6 +3,9 @@
 This Sample-pipeline repo has Sample Application which has some basic sample pipelines of spinnaker.
 These pipelines can be set as default sample pipelines when spinnaker is installed.
 
+# Docker file
+Using the above Docker file the image build is quay.io/opsmxpublic/spin-sample-pipeline:v1.0.1
+
 ## Instructions for installing these pipelines
 If installed using helm, Run the job create-sample-job.yaml available in this repo. Alternatively:
 
